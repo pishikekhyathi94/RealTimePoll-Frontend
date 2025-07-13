@@ -10,3 +10,9 @@ import MenuBar from "./components/MenuBar.vue";
     </v-main>
   </v-app>
 </template>
+
+<style>
+.required-field label.v-label.v-field-label::after {
+    content: ' *';
+}
+</style>

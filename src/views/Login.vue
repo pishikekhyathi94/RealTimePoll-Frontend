@@ -121,11 +121,36 @@ function closeSnackBar() {
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
+           <v-btn variant="flat" color="secondary" @click="openCreateAccount()">
+              Create Account
+            </v-btn>
             <v-spacer></v-spacer>
             <v-btn variant="flat" color="primary" @click="login()">Login</v-btn>
           </v-card-actions>
         </v-card>
       </v-form>
+
+        <v-dialog persistent v-model="isCreateAccount" width="800">
+                <v-card class="rounded-lg elevation-5">
+                    <v-card-title class="headline mb-2">Sign Up </v-card-title>
+                    <v-form @submit.prevent="createAccount()" ref="createAccountFormRef">
+                        <v-card-text>
+                            <v-text-field v-model="user.firstName" label="First Name" :rules="inputRules.required" class="required-field"></v-text-field>
+
+                            <v-text-field v-model="user.lastName" label="Last Name" :rules="inputRules.required" class="required-field"></v-text-field>
+
+                            <v-text-field v-model="user.email" label="Email" :rules="inputRules.email" class="required-field"></v-text-field>
+
+                            <v-text-field v-model="user.password" label="Password" type="password" :rules="inputRules.password" class="required-field"></v-text-field>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn variant="flat" color="secondary" @click="closeCreateAccount()">Close</v-btn>
+                            <v-btn variant="flat" color="primary" type="submit">Create Account</v-btn>
+                        </v-card-actions>
+                    </v-form>
+                </v-card>
+            </v-dialog>
 
       <v-snackbar v-model="snackbar.value" rounded="pill">
         {{ snackbar.text }}

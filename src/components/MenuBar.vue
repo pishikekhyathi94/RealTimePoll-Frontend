@@ -1,5 +1,5 @@
 <script setup>
-import ocLogo from "../../public/Live_Poll.jpg"
+
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices";
@@ -8,10 +8,10 @@ const router = useRouter();
 
 const user = ref(null);
 const title = ref("LIVE POLL");
-const logoURL = ref("");
+
 
 onMounted(() => {
-  logoURL.value = ocLogo;
+
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
@@ -35,7 +35,7 @@ function logout() {
       <router-link :to="{ name: 'recipes' }">
         <v-img
           class="mx-2"
-          :src="logoURL"
+          src="/Live_Poll.jpg"
           height="50"
           width="50"
           contain

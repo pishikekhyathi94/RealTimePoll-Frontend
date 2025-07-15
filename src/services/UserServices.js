@@ -5,11 +5,11 @@ export default {
     return apiClient.get("users");
   },
   addUser(user) {
-    return apiClient.post("users", user);
+    return apiClient.post("users/signup", user);
   },
   loginUser(user) {
     console.log(user);
-    return apiClient.post("login", user.value, {
+    return apiClient.post("users/login", user.value, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",

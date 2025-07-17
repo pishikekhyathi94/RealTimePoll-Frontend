@@ -1,5 +1,4 @@
 <script setup>
-
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import UserServices from "../services/UserServices";
@@ -9,9 +8,7 @@ const router = useRouter();
 const user = ref(null);
 const title = ref("LIVE POLL");
 
-
 onMounted(() => {
-
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
@@ -32,20 +29,30 @@ function logout() {
 <template>
   <div>
     <v-app-bar color="primary" app dark>
-      <router-link :to="{ name: 'recipes' }">
-        <v-img
-          class="mx-2"
-          src="/Live_Poll.jpg"
-          height="50"
-          width="50"
-          contain
-        ></v-img>
-      </router-link>
-      <v-toolbar-title class="title">
-        {{ title }}
-      </v-toolbar-title>
+      <div class="d-flex align-center">
+        <router-link :to="{ name: 'recipes' }">
+          <v-img
+            class="mx-2"
+            src="/Live_Poll.jpg"
+            height="50"
+            width="50"
+            contain
+          ></v-img>
+        </router-link>
+
+        <v-toolbar-title class="title">
+          {{ title }}
+        </v-toolbar-title>
+
+        <div v-if="user !== null" class="ml-6">
+          <v-btn text>CLASSES</v-btn>
+          <v-btn text>REPORTS</v-btn>
+          <v-btn text>POLL</v-btn>
+        </div>
+      </div>
+
       <v-spacer></v-spacer>
-      
+
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">

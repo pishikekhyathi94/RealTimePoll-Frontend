@@ -57,6 +57,7 @@ async function createAccount() {
       snackbar.value.color = "green";
       snackbar.value.text = "Account created successfully!";
       router.push({ name: "login" });
+      closeCreateAccount()
     })
     .catch((error) => {
       console.log(error);

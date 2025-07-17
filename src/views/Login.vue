@@ -16,6 +16,7 @@ const user = ref({
   lastName: "",
   email: "",
   password: "",
+  roles: [],
 });
 
 const inputRules = ref({
@@ -25,7 +26,9 @@ const inputRules = ref({
         value => {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return pattern.test(value) || 'Invalid e-mail address';
+            
         },
+        value => /@.*\.?oc\.edu$/i.test(value) || 'Email must end with oc.edu'
     ],
     pass: [
         v => !!v || 'Text Required',
@@ -37,6 +40,9 @@ const inputRules = ref({
     value => /[0-9]/.test(value) || 'Password must contain at least one number',
     value => /[!@#$%^&*(),.?":{}|<>]/.test(value) || 'Password must contain at least one special character',
   ],
+   roles: [
+    v => !!v?.length || 'At least one role must be selected' 
+  ]
 });
 
 onMounted(async () => {
@@ -57,7 +63,9 @@ async function createAccount() {
       snackbar.value.color = "green";
       snackbar.value.text = "Account created successfully!";
       router.push({ name: "login" });
-      closeCreateAccount()
+
+      closeCreateAccount();
+
     })
     .catch((error) => {
       console.log(error);
@@ -135,7 +143,7 @@ function closeSnackBar() {
                 <v-card class="rounded-lg elevation-5">
                     <v-card-title class="headline mb-2">Sign Up </v-card-title>
                     <v-form @submit.prevent="createAccount()" ref="createAccountFormRef">
-                        <v-card-text>
+                        <v-card-text> 
                             <v-text-field v-model="user.firstName" label="First Name" :rules="inputRules.required" class="required-field"></v-text-field>
 
                             <v-text-field v-model="user.lastName" label="Last Name" :rules="inputRules.required" class="required-field"></v-text-field>
@@ -143,6 +151,16 @@ function closeSnackBar() {
                             <v-text-field v-model="user.email" label="Email" :rules="inputRules.email" class="required-field"></v-text-field>
 
                             <v-text-field v-model="user.password" label="Password" type="password" :rules="inputRules.password" class="required-field"></v-text-field>
+
+                            <v-select
+                                    v-model="user.roles"
+                                    :items="['student', 'professor', 'admin']"
+                                    label="Sign As"
+                                    :rules="inputRules.roles"
+                                    multiple
+                                    chips
+                                    class="required-field"
+                                  />
                         </v-card-text>
                         <v-card-actions>
                             <v-spacer></v-spacer>

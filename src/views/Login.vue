@@ -17,6 +17,7 @@ const user = ref({
   email: "",
   password: "",
 });
+const showPassword = ref(false);
 
 const inputRules = ref({
     required: [v => !!v || 'Text Required'],
@@ -98,6 +99,12 @@ function closeCreateAccount() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
+
+function togglePasswordVisibility() {
+  showPassword.value = !showPassword.value;
+}
+
 </script>
 
 <template>
@@ -118,7 +125,9 @@ function closeSnackBar() {
             <v-text-field
               v-model="user.password"
               label="Password"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
+                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                @click:append-inner="togglePasswordVisibility"
               :rules="inputRules.pass"
               class="required-field"
               required

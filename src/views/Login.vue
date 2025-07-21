@@ -18,6 +18,7 @@ const user = ref({
   password: "",
   roles: [],
 });
+const showPassword = ref(false);
 
 const inputRules = ref({
     required: [v => !!v || 'Text Required'],
@@ -82,7 +83,11 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-      router.push({ name: "recipes" });
+       if (data.data.roles.includes("professor")) {
+        router.push({ name: "professor" });
+      } else {
+        router.push({ name: "recipes" });
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -103,6 +108,12 @@ function closeCreateAccount() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
+
+function togglePasswordVisibility() {
+  showPassword.value = !showPassword.value;
+}
+
 </script>
 
 <template>
@@ -123,7 +134,9 @@ function closeSnackBar() {
             <v-text-field
               v-model="user.password"
               label="Password"
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
+                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                @click:append-inner="togglePasswordVisibility"
               :rules="inputRules.pass"
               class="required-field"
               required

@@ -73,7 +73,11 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-      router.push({ name: "recipes" });
+       if (data.data.roles.includes("professor")) {
+        router.push({ name: "professor" });
+      } else {
+        router.push({ name: "recipes" });
+      }
     })
     .catch((error) => {
       console.log(error);

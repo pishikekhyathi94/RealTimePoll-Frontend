@@ -18,6 +18,7 @@ const user = ref({
   password: "",
   roles: [],
 });
+const createAccountFormRef = ref(null);
 const showPassword = ref(false);
 
 const inputRules = ref({
@@ -53,11 +54,12 @@ onMounted(async () => {
   // }
 });
 
-function navigateToRecipes() {
-  router.push({ name: "recipes" });
-}
-
 async function createAccount() {
+  const { valid } = await createAccountFormRef.value.validate();
+
+  if (!valid) {
+    return; 
+  }
   await UserServices.addUser(user.value)
     .then(() => {
       snackbar.value.value = true;
@@ -163,7 +165,10 @@ function togglePasswordVisibility() {
 
                             <v-text-field v-model="user.email" label="Email" :rules="inputRules.email" class="required-field"></v-text-field>
 
-                            <v-text-field v-model="user.password" label="Password" type="password" :rules="inputRules.password" class="required-field"></v-text-field>
+                            <v-text-field v-model="user.password" label="Password"  :type="showPassword ? 'text' : 'password'"
+                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+                @click:append-inner="togglePasswordVisibility"
+                 :rules="inputRules.password" class="required-field"></v-text-field>
 
                             <v-select
                                     v-model="user.roles"

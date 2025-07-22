@@ -52,7 +52,7 @@ async function handleAddQuiz(newQuiz) {
         await fetchQuizzes();
         snackbar.value.value = true;
         snackbar.value.color = "green";
-        snackbar.value.text = `${response?.data?.name} added successfully!`;
+        snackbar.value.text = `${res?.data?.name} added successfully!`;
       }
     });
   } catch (error) {

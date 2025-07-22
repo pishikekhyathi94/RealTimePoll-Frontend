@@ -172,7 +172,7 @@ function togglePasswordVisibility() {
 
                             <v-select
                                     v-model="user.roles"
-                                    :items="['student', 'professor', 'admin']"
+                                    :items="['student', 'professor']"
                                     label="Sign As"
                                     :rules="inputRules.roles"
                                     multiple

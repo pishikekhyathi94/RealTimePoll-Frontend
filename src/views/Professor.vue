@@ -1,8 +1,10 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import AddClassDialog from "../components/AddClassDialog.vue";
 import ClassServices from "../services/ClassServices.js";
 
+const router = useRouter();
 const tab = ref(1);
 const loading = ref(false);
 const user = ref(null);
@@ -68,6 +70,10 @@ function openAddDialog() {
   showAddClassDialog.value = true;
 }
 
+function classDetails(classId) {
+  router.push({ name: "classDetails", params: { classId } });
+}
+
 </script>
 
 <style>
@@ -108,7 +114,7 @@ function openAddDialog() {
               You haven't created any classes yet.
             </div>
             <div v-for="(cls, index) in classesData" :key="cls.id">
-              <v-list-item :title="cls.name" link >
+              <v-list-item :title="cls.name" link @click="classDetails(cls.id)">
               </v-list-item>
               <v-divider v-if="index < classesData?.length - 1"></v-divider>
             </div>

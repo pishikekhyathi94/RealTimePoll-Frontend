@@ -43,12 +43,6 @@ function logout() {
         <v-toolbar-title class="title">
           {{ title }}
         </v-toolbar-title>
-
-        <div v-if="user !== null" class="ml-6">
-          <v-btn text>CLASSES</v-btn>
-          <v-btn text>REPORTS</v-btn>
-          <v-btn text>POLL</v-btn>
-        </div>
       </div>
 
       <v-spacer></v-spacer>

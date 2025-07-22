@@ -31,7 +31,7 @@ function closeSnackBar() {
 async function fetchClasses() {
   loading.value = true;
   try {
-    const response = await ClassServices.getClasses(user.value.id);
+    const response = await ClassServices.getClasses(user?.value?.id);
     classesData.value = response.data;
   } catch (error) {
     console.error("Error fetching classes:", error);
@@ -43,8 +43,9 @@ async function fetchClasses() {
 async function createClass(classValues) {
   const payload = {
     ...classValues,
-    userId: user.value.id,
+    userId: user?.value?.id,
   };
+  console.log("Creating class with payload::", payload);
   await ClassServices.addClass(payload)
     .then(async (response) => {
       if (response?.status === 200) {
@@ -107,19 +108,37 @@ function classDetails(classId) {
       <div v-if="!user">
         <p class="text-center">Please log in to manage your classes.</p>
       </div>
-      <div v-else>
-        <v-card variant="outlined" rounded="xl">
-          <v-list lines="one">
+      <div v-else class="d-flex flex-wrap ">
             <div v-if="!classesData?.length" class="text-center pa-4 text-grey">
               You haven't created any classes yet.
             </div>
-            <div v-for="(cls, index) in classesData" :key="cls.id">
-              <v-list-item :title="cls.name" link @click="classDetails(cls.id)">
-              </v-list-item>
-              <v-divider v-if="index < classesData?.length - 1"></v-divider>
+            <div v-for="(cls, index) in classesData" :key="cls.id" class="d-flex align-center">
+              <v-card
+      class="mx-2 mb-2"
+      max-width="250"
+      @click="
+        classDetails(cls?.id)
+      "
+      hover
+    >
+      <v-img
+        height="200"
+        :src="`/class.jpg`"
+        class="book-cover-image"
+      ></v-img>
+
+      <v-card-item>
+        <v-card-title class="text-h5 font-weight-bold">{{
+          cls?.name
+        }}</v-card-title>
+        <v-card-subtitle>
+          <!-- <span class="me-1 font-weight-medium">{{
+            book?.bookGenre?.bookGenre || book?.bookGenre
+          }}</span> -->
+        </v-card-subtitle>
+      </v-card-item>
+    </v-card>
             </div>
-          </v-list>
-        </v-card>
       </div>
     </v-col>
   </v-row>

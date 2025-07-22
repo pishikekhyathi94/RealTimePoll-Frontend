@@ -8,6 +8,17 @@ class ClassServices {
   addClass(data) {
     return apiClient.post("/classes", data);
   }
+    addQuiz(data) {
+    return apiClient.post("quiz", data);
+  }
+
+  getQuizzes(classId){
+    return apiClient.get("quiz/all/"+classId);
+  }
+  
+  getQuizDetails(quizId) {
+    return apiClient.get(`quiz/${quizId}`);
+  }
 }
 
 export default new ClassServices();

@@ -72,6 +72,10 @@ function goBack() {
   router.push({ name: "professor" });
 }
 
+function goToQuiz(quizId) {
+  router.push(`/professor/class/${classId}/quiz/${quizId}`);
+}
+
 </script>
 
 <style scoped>
@@ -100,6 +104,7 @@ function goBack() {
       <v-list-item
         v-for="quiz in quizzes"
         :key="quiz.id"
+         @click="goToQuiz(quiz.id)"
         class="hoverable"
       >
         <v-list-item-content>

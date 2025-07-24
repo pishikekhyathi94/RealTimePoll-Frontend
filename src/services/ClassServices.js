@@ -19,6 +19,14 @@ class ClassServices {
   getQuizDetails(quizId) {
     return apiClient.get(`quiz/${quizId}`);
   }
+
+   updateClass(id, data) {
+    return apiClient.put(`/classes/${id}`, data);
+  }
+
+   deleteClass(id) {
+    return apiClient.delete(`/classes/${id}`);
+  }
 }
 
 export default new ClassServices();

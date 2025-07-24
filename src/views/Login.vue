@@ -20,6 +20,8 @@ const user = ref({
 });
 const createAccountFormRef = ref(null);
 const showPassword = ref(false);
+const chooseRoleDialog = ref(false);
+const selectedRole = ref(null);
 
 const inputRules = ref({
     required: [v => !!v || 'Text Required'],
@@ -49,9 +51,6 @@ const inputRules = ref({
 
 onMounted(async () => {
   localStorage.removeItem("user");
-  // if (localStorage.getItem("user") !== null) {
-  //   router.push({ name: "recipes" });
-  // }
 });
 
 async function createAccount() {
@@ -81,14 +80,17 @@ async function createAccount() {
 async function login() {
   await UserServices.loginUser(user)
     .then((data) => {
-      window.localStorage.setItem("user", JSON.stringify(data.data));
+      window.localStorage.setItem("user", JSON.stringify(data?.data));
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-       if (data.data.roles.includes("professor")) {
+      const roles = data?.data?.roles;
+       if (roles?.includes("student") && roles?.includes("professor")) {
+        chooseRoleDialog.value = true;
+      } else if (roles?.includes("professor")) {
         router.push({ name: "professor" });
-      } else {
-        router.push({ name: "recipes" });
+      } else if (roles?.includes("student")) {
+        router.push({ name: "student" });
       }
     })
     .catch((error) => {
@@ -116,6 +118,14 @@ function togglePasswordVisibility() {
   showPassword.value = !showPassword.value;
 }
 
+function proceedWithRole() {
+  if (selectedRole.value === "student") {
+    router.push({ name: "student" });
+  } else if (selectedRole.value === "professor") {
+    router.push({ name: "professor" });
+  }
+  chooseRoleDialog.value = false;
+}
 </script>
 
 <template>
@@ -188,6 +198,24 @@ function togglePasswordVisibility() {
                     </v-form>
                 </v-card>
             </v-dialog>
+
+          <v-dialog v-model="chooseRoleDialog" max-width="400">
+  <v-card>
+    <v-card-title>Select Role</v-card-title>
+    <v-card-text>
+      <v-radio-group v-model="selectedRole">
+        <v-radio label="Professor" value="professor"></v-radio>
+        <v-radio label="Student" value="student"></v-radio>
+      </v-radio-group>
+    </v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="primary" @click="proceedWithRole" :disabled="!selectedRole">
+        Proceed
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
 
       <v-snackbar v-model="snackbar.value" rounded="pill">
         {{ snackbar.text }}

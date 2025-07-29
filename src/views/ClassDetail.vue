@@ -50,6 +50,8 @@ async function handleAddQuiz(newQuiz) {
   try {
     await ClassServices.addQuiz({
       prompt: newQuiz.name,
+      title: newQuiz.title,
+      description: newQuiz.description,
       userId: user.value.id,
       classId: classId,
     }).then(async (res) => {
@@ -157,6 +159,7 @@ async function deleteQuiz(quizId) {
     <AddQuizDialog
       v-model="showAddQuiz"
       @submit="handleAddQuiz"
+      :fetch-quizzes="fetchQuizzes"
     />
      <DeleteConfirmationDialog
     v-model="isDeleteDialogOpen"

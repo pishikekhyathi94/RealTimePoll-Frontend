@@ -7,9 +7,11 @@ const router = useRouter();
 
 const user = ref(null);
 const title = ref("LIVE POLL");
+const userRole = ref(null);
 
 onMounted(() => {
   user.value = JSON.parse(localStorage.getItem("user"));
+  userRole.value = localStorage.getItem("userRole");
 });
 
 function logout() {
@@ -23,6 +25,18 @@ function logout() {
   localStorage.removeItem("user");
   user.value = null;
   router.push({ name: "login" });
+}
+
+function switchProfile() {
+  if (userRole.value === "professor") {
+    userRole.value = "student";
+    window.localStorage.setItem("userRole", "student");
+    router.push({ name: "student" });
+  } else {
+    userRole.value = "professor";
+    window.localStorage.setItem("userRole", "professor");
+    router.push({ name: "professor" });
+  }
 }
 </script>
 
@@ -70,6 +84,24 @@ function logout() {
                 {{ user.email }}
               </p>
               <v-divider class="my-3"></v-divider>
+              <v-btn
+                v-if="user.roles.length > 1 && userRole === 'professor'"
+                variant="flat"
+                color="primary"
+                @click="switchProfile()"
+              >
+                Switch to student
+              </v-btn>
+              <v-btn
+                v-if="user.roles.length > 1 && userRole === 'student'"
+                variant="flat"
+                color="primary"
+                @click="switchProfile()"
+              >
+                Switch to professor
+              </v-btn>
+              <v-divider class="my-3"></v-divider>
+              <v-btn rounded variant="text"> Profile </v-btn>
               <v-btn rounded variant="text" @click="logout()"> Logout </v-btn>
             </div>
           </v-card-text>

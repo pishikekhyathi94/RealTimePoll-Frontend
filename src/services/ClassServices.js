@@ -27,6 +27,23 @@ class ClassServices {
    deleteClass(id) {
     return apiClient.delete(`/classes/${id}`);
   }
+    getClassesForUser(userId) {
+    return apiClient.get(`/all/classes?userId=${userId}`);
+  }
+
+  getRegisterForClasses(data) {
+    return apiClient.post("register", data);
+  }
+  
+
+    deleteQuiz(quizId) {
+    return apiClient.delete(`quiz/${quizId}`);
+  }
+
+  addManualQuiz(data) {
+    return apiClient.post("manual/quiz", data);
+  }
+
 }
 
 export default new ClassServices();

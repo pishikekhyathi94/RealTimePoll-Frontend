@@ -75,7 +75,13 @@ function closeSnackBar() {
 }
 
 function goBack() {
+    if (userRole.value === "student") {
+    router.push({ name: "student", query: { tab: 2 } });
+  } else if (userRole.value === "professor") {
     router.push({ name: "professor" });
+  }else if(userRole.value === "admin"){
+    router.push({ name: "admin" });
+  }
   }
 
 function openDeleteDialog(quiz) {
@@ -104,6 +110,11 @@ async function deleteQuiz(quizId) {
     });
 }
 
+function goToQuiz(quizId) {
+  if (userRole.value === "professor" || userRole.value === "admin") {
+    router.push(`/professor/class/${classId}/quiz/${quizId}`);
+  }
+}
 </script>
 
 <style scoped>
@@ -143,7 +154,7 @@ async function deleteQuiz(quizId) {
               class="my-2"
               prepend-icon="mdi-trash-can"
               color="primary"
-              v-if="userRole === 'professor'"
+              v-if="userRole === 'professor' || userRole === 'admin'"
               variant="flat"
             >
               Delete Quiz

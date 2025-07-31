@@ -94,6 +94,9 @@ async function login() {
       } else if (roles?.includes("student")) {
         window.localStorage.setItem("userRole", "student");
         router.push({ name: "student" });
+      } else if (roles?.includes("admin")) {
+        window.localStorage.setItem("userRole", "admin");
+        router.push({ name: "admin" });
       }
     })
     .catch((error) => {
@@ -128,6 +131,9 @@ function proceedWithRole() {
   } else if (selectedRole.value === "professor") {
     window.localStorage.setItem("userRole", "professor");
     router.push({ name: "professor" });
+  }else if(selectedRole.value === "admin"){
+    window.localStorage.setItem("userRole", "admin");
+    router.push({ name: "admin" });
   }
   chooseRoleDialog.value = false;
 }
@@ -187,7 +193,7 @@ function proceedWithRole() {
 
               <v-select
                 v-model="user.roles"
-                :items="['student', 'professor']"
+                :items="['student', 'professor', 'admin']"
                 label="Sign As"
                 :rules="inputRules.roles"
                 multiple
@@ -197,8 +203,15 @@ function proceedWithRole() {
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-                            <v-btn variant="flat" color="secondary" @click="closeCreateAccount()">Close</v-btn>
-                            <v-btn variant="flat" color="primary" type="submit">Create Account</v-btn>
+              <v-btn
+                variant="flat"
+                color="secondary"
+                @click="closeCreateAccount()"
+                >Close</v-btn
+              >
+              <v-btn variant="flat" color="primary" type="submit"
+                >Create Account</v-btn
+              >
             </v-card-actions>
           </v-form>
         </v-card>
@@ -211,6 +224,7 @@ function proceedWithRole() {
             <v-radio-group v-model="selectedRole">
               <v-radio label="Professor" value="professor"></v-radio>
               <v-radio label="Student" value="student"></v-radio>
+              <v-radio label="Admin" value="admin"></v-radio>
             </v-radio-group>
           </v-card-text>
           <v-card-actions>

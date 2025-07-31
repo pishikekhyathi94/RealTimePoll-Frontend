@@ -27,15 +27,19 @@ function logout() {
   router.push({ name: "login" });
 }
 
-function switchProfile() {
-  if (userRole.value === "professor") {
+function switchProfile(selectedRole) {
+  if (selectedRole === "student") {
     userRole.value = "student";
     window.localStorage.setItem("userRole", "student");
     router.push({ name: "student" });
-  } else {
+  } else if (selectedRole === "professor") {
     userRole.value = "professor";
     window.localStorage.setItem("userRole", "professor");
     router.push({ name: "professor" });
+  } else if (selectedRole === "admin") {
+    userRole.value = "admin";
+    window.localStorage.setItem("userRole", "admin");
+    router.push({ name: "admin" });
   }
 }
 </script>
@@ -64,7 +68,11 @@ function switchProfile() {
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">
-            <v-avatar class="mx-auto text-center" color="accent" size="large">
+            <v-avatar
+              class="mx-auto text-center"
+              color="secondary"
+              size="large"
+            >
               <span class="white--text font-weight-bold">{{
                 `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
               }}</span>
@@ -83,25 +91,45 @@ function switchProfile() {
               <p class="text-caption mt-1">
                 {{ user.email }}
               </p>
+              <v-divider class="my-3" v-if="user.roles.length > 1"></v-divider>
+              <div class="d-flex flex-column gap-4">
+                <v-btn
+                  v-if="
+                    user.roles.length > 1 &&
+                    (userRole === 'professor' || userRole === 'admin')
+                  "
+                  variant="flat"
+                  color="primary"
+                  class="mb-2"
+                  @click="switchProfile('student')"
+                >
+                  Switch to student
+                </v-btn>
+                <v-btn
+                  v-if="
+                    user.roles.length > 1 &&
+                    (userRole === 'student' || userRole === 'admin')
+                  "
+                  variant="flat"
+                  color="primary"
+                  class="mb-2"
+                  @click="switchProfile('professor')"
+                >
+                  Switch to professor
+                </v-btn>
+                <v-btn
+                  v-if="
+                    user.roles.length > 1 &&
+                    (userRole === 'student' || userRole === 'professor')
+                  "
+                  variant="flat"
+                  color="primary"
+                  @click="switchProfile('admin')"
+                >
+                  Switch to Admin
+                </v-btn>
+              </div>
               <v-divider class="my-3"></v-divider>
-              <v-btn
-                v-if="user.roles.length > 1 && userRole === 'professor'"
-                variant="flat"
-                color="primary"
-                @click="switchProfile()"
-              >
-                Switch to student
-              </v-btn>
-              <v-btn
-                v-if="user.roles.length > 1 && userRole === 'student'"
-                variant="flat"
-                color="primary"
-                @click="switchProfile()"
-              >
-                Switch to professor
-              </v-btn>
-              <v-divider class="my-3"></v-divider>
-              <v-btn rounded variant="text"> Profile </v-btn>
               <v-btn rounded variant="text" @click="logout()"> Logout </v-btn>
             </div>
           </v-card-text>

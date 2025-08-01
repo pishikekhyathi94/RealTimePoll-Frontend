@@ -3,7 +3,6 @@ import { ref, watch } from "vue";
 
 const newClass = ref({
   name: "",
-  noOfStudents: 0,
 });
 const snackbar = ref({
   value: false,
@@ -28,7 +27,6 @@ watch(
     if (props.isEdit && newVal) {
       newClass.value = {
         name: newVal.name || "",
-        noOfStudents: newVal.description || 0,
       };
     }
   },
@@ -40,14 +38,12 @@ function closeAddDialog() {
 }
 
 function submit() {
-  if (newClass.value.name.trim() !== "" && newClass.value.noOfStudents > 0) {
+  if (newClass.value.name.trim() !== "") {
     emit("submit", {
       name: newClass.value.name.trim(),
-      noOfStudents: newClass.value.noOfStudents,
     });
     emit("update:modelValue", false);
     newClass.value.name = "";
-    newClass.value.noOfStudents = 0;
   }
 }
 </script>
@@ -66,12 +62,6 @@ function submit() {
         <v-text-field
           v-model="newClass.name"
           label="Class Name (e.g., CS 101 - Intro to Programming)"
-          required
-        ></v-text-field>
-        <v-text-field
-          v-model="newClass.noOfStudents"
-          label="Number of Students"
-          type="number"
           required
         ></v-text-field>
       </v-card-text>

@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import ClassServices from "../services/ClassServices.js";
 
 const router = useRouter();
+const route = useRoute();
 const tab = ref(1);
 const user = ref(null);
 const classesData = ref([]);
@@ -15,6 +16,8 @@ const snackbar = ref({
 
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
+  tab.value = route.query.tab ? parseInt(route.query.tab) : 1;
+  router.replace({ query: {} });
 });
 
 watch(tab, async (newTab) => {
@@ -63,8 +66,10 @@ async function registerForClass(classId) {
   }
 }
 
-function classDetails(classId) {
-  router.push({ name: "classDetails", params: { classId } });
+function classDetails(cls) {
+  if(cls?.isRegistered && cls?.id){
+    router.push({ name: "classDetails", params: { classId: cls?.id } });
+  }
 }
 </script>
 
@@ -123,20 +128,15 @@ function classDetails(classId) {
                   >
                     <v-img
                       height="200"
-                      :src="`/Live_Poll.jpg`"
+                      :src="`/class.jpg`"
                       class="book-cover-image"
-                      @click="classDetails(cls?.id)"
+                      @click="classDetails(cls)"
                     ></v-img>
 
-                    <v-card-item @click="classDetails(cls?.id)">
+                    <v-card-item @click="classDetails(cls)">
                       <v-card-title class="text-h5 font-weight-bold">{{
                         cls?.name
                       }}</v-card-title>
-                      <v-card-subtitle>
-                        <span class="me-1 font-weight-medium"
-                          >{{ cls?.description }} Students</span
-                        >
-                      </v-card-subtitle>
                     </v-card-item>
                     <v-card-actions>
                       <v-col cols="12" class="d-flex pa-0 justify-center">
@@ -153,13 +153,13 @@ function classDetails(classId) {
                         <v-btn
                           @click="registerForClass(cls?.id)"
                           class="my-2"
-                          prepend-icon="mdi-account-plus"
+                          prepend-icon="mdi-check"
                           color="primary"
                           v-if="cls?.isRegistered"
                           variant="flat"
                           disabled="true"
                         >
-                          Already Registered
+                           Registered
                         </v-btn>
                       </v-col>
                     </v-card-actions>

@@ -47,7 +47,6 @@ async function fetchClasses() {
 async function createClass(classValues) {
   const payload = {
     name: classValues.name,
-    description: classValues.noOfStudents,
     userId: user.value.id,
   };
   await ClassServices.addClass(payload)
@@ -111,7 +110,6 @@ function openEditClassModal(cls) {
 async function updateClass(classValues) {
    const payload = {
     name: classValues.name,
-    description: classValues.noOfStudents,
   };
   await ClassServices.updateClass(selectedClass.value.id, payload)
     .then(async (response) => {
@@ -120,7 +118,7 @@ async function updateClass(classValues) {
         isEditClassDialogOpen.value = false;
         snackbar.value.value = true;
         snackbar.value.color = "green";
-        snackbar.value.text = `${response?.data?.name} updated successfully!`;
+        snackbar.value.text = `class updated successfully!`;
       }
     })
     .catch((error) => {
@@ -161,7 +159,6 @@ function cancelDelete() {
         @click="openAddDialog"
         v-if="tab === 1"
         class="my-2"
-        prepend-icon="mdi-plus-box"
         color="primary"
       >
         Add Class
@@ -194,9 +191,6 @@ function cancelDelete() {
               <v-card-title class="text-h5 font-weight-bold">{{
                 cls?.name
               }}</v-card-title>
-              <v-card-subtitle>
-                <span class="me-1 font-weight-medium">{{cls?.description}} Students</span>
-              </v-card-subtitle>
             </v-card-item>
             <v-card-actions v-if="tab === 1 || tab === 2">
               <v-col cols="6" class="pa-0">

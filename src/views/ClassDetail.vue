@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import AddQuizDialog from "../components/AddQuizDialog.vue";
 import ClassServices from "../services/ClassServices";
 import DeleteConfirmationDialog from "../components/DeleteConfirmationDialog.vue";
+import CreateQuestionsDialog from "../components/CreateQuestionsDialog.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -18,6 +19,9 @@ const snackbar = ref({
 });
 const quizzes = ref([]);
 const classId = route.params.classId;
+const showCreateQuiz = ref(false);
+const manualEditQuiz = ref(null);
+const loading = ref(false);
 
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
@@ -47,22 +51,22 @@ async function fetchQuizzes() {
 }
 
 async function handleAddQuiz(newQuiz) {
+  loading.value = true;
   try {
     await ClassServices.addQuiz({
       prompt: newQuiz.name,
-      title: newQuiz.title,
-      description: newQuiz.description,
       userId: user.value.id,
       classId: classId,
     }).then(async (res) => {
       if (res?.status === 200) {
-        await fetchQuizzes();
-        snackbar.value.value = true;
-        snackbar.value.color = "green";
-        snackbar.value.text = `quiz added successfully!`;
+        showAddQuiz.value = false;
+        showCreateQuiz.value = true;
+        manualEditQuiz.value = res.data;
+        loading.value = false;
       }
     });
   } catch (error) {
+    loading.value = false;
     snackbar.value.value = true;
     snackbar.value.color = "error";
     snackbar.value.text = "Failed to add quiz.";
@@ -75,14 +79,14 @@ function closeSnackBar() {
 }
 
 function goBack() {
-    if (userRole.value === "student") {
+  if (userRole.value === "student") {
     router.push({ name: "student", query: { tab: 2 } });
   } else if (userRole.value === "professor") {
     router.push({ name: "professor" });
   }else if(userRole.value === "admin"){
     router.push({ name: "admin" });
   }
-  }
+}
 
 function openDeleteDialog(quiz) {
   selectedQuiz.value = quiz;
@@ -128,7 +132,7 @@ function goToQuiz(quizId) {
 </style>
 
 <template>
-  <v-container>
+  <v-container v-if="!loading">
     <v-row justify="space-between" align="center" class="my-4 mx-1">
       <v-btn @click="goBack" variant="text" prepend-icon="mdi-check-circle">
         <template v-slot:prepend>
@@ -136,7 +140,12 @@ function goToQuiz(quizId) {
         </template>
         <h2>Class - {{ classId }} Quizzes</h2>
       </v-btn>
-      <v-btn color="primary" @click="openAddQuizDialog">Add Quiz</v-btn>
+      <v-btn
+        color="primary"
+        v-if="userRole === 'professor'"
+        @click="openAddQuizDialog"
+        >Add Quiz</v-btn
+      >
     </v-row>
 
     <v-list two-line v-if="quizzes.length > 0">
@@ -161,24 +170,38 @@ function goToQuiz(quizId) {
             </v-btn>
           </v-list-item-action>
         </v-list-item-content>
+        <v-divider
+          class="my-4"
+          v-if="quiz.id !== quizzes[quizzes.length - 1].id"
+        ></v-divider>
       </v-list-item>
     </v-list>
     <div v-else class="text-center pa-4 text-grey">
       No quizzes available for this class.
     </div>
-
-    <AddQuizDialog
-      v-model="showAddQuiz"
-      @submit="handleAddQuiz"
+    <AddQuizDialog v-model="showAddQuiz" @submit="handleAddQuiz" />
+    <CreateQuestionsDialog
+      v-model="showCreateQuiz"
+      :prefilled-quiz="manualEditQuiz"
       :fetch-quizzes="fetchQuizzes"
     />
-     <DeleteConfirmationDialog
-    v-model="isDeleteDialogOpen"
-    message="Are you sure you want to delete this Quiz?"
-    @confirm="deleteQuiz(selectedQuiz.id)"
-    @cancel="cancelDelete"
-  />
+    <DeleteConfirmationDialog
+      v-model="isDeleteDialogOpen"
+      message="Are you sure you want to delete this Quiz?"
+      @confirm="deleteQuiz(selectedQuiz.id)"
+      @cancel="cancelDelete"
+    />
   </v-container>
+  <v-row justify="center" align="center" class="h-100" v-if="loading">
+    <v-col cols="12" class="text-center py-10">
+      <v-progress-circular
+        :size="50"
+        color="primary"
+        indeterminate
+      ></v-progress-circular>
+    </v-col>
+  </v-row>
+
   <v-snackbar v-model="snackbar.value" rounded="pill">
     {{ snackbar.text }}
     <template v-slot:actions>

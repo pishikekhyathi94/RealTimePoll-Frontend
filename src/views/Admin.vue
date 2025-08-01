@@ -60,7 +60,7 @@ function classDetails(cls) {
           <v-card class="mx-4 mb-2" max-width="250" min-width="250" hover>
             <v-img
               height="200"
-              :src="`/Live_Poll.jpg`"
+             :src="`/class.jpg`"
               class="book-cover-image"
               @click="classDetails(cls)"
             ></v-img>

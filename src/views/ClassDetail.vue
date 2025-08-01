@@ -4,6 +4,8 @@ import { useRoute, useRouter } from "vue-router";
 import AddQuizDialog from "../components/AddQuizDialog.vue";
 import ClassServices from "../services/ClassServices";
 import DeleteConfirmationDialog from "../components/DeleteConfirmationDialog.vue";
+import InstructionsDialog from "../components/InstructionsDialog.vue";
+import StartQuizDialog from "../components/StartQuizDialog.vue";
 import CreateQuestionsDialog from "../components/CreateQuestionsDialog.vue";
 
 const route = useRoute();
@@ -19,6 +21,8 @@ const snackbar = ref({
 });
 const quizzes = ref([]);
 const classId = route.params.classId;
+const showQuizInstructions = ref(false);
+const startQuiz = ref(false);
 const showCreateQuiz = ref(false);
 const manualEditQuiz = ref(null);
 const loading = ref(false);
@@ -88,6 +92,11 @@ function goBack() {
   }
 }
 
+function openQuizInstructions(quiz) {
+  showQuizInstructions.value = true;
+  selectedQuiz.value = quiz;
+}
+
 function openDeleteDialog(quiz) {
   selectedQuiz.value = quiz;
   isDeleteDialogOpen.value = true;
@@ -118,6 +127,15 @@ function goToQuiz(quizId) {
   if (userRole.value === "professor" || userRole.value === "admin") {
     router.push(`/professor/class/${classId}/quiz/${quizId}`);
   }
+}
+
+function beginQuiz() {
+  showQuizInstructions.value = false;
+  startQuiz.value = true;
+}
+
+function handleFinish() {
+  startQuiz.value = false;
 }
 </script>
 
@@ -159,6 +177,16 @@ function goToQuiz(quizId) {
           </div>
           <v-list-item-action class="mr-auto text-right justify-end">
             <v-btn
+              @click="openQuizInstructions(quiz)"
+              class="my-2"
+              prepend-icon="mdi-account-plus"
+              color="primary"
+              v-if="userRole === 'student'"
+              variant="flat"
+            >
+              Start Quiz
+            </v-btn>
+            <v-btn
               @click="openDeleteDialog(quiz)"
               class="my-2"
               prepend-icon="mdi-trash-can"
@@ -190,6 +218,12 @@ function goToQuiz(quizId) {
       message="Are you sure you want to delete this Quiz?"
       @confirm="deleteQuiz(selectedQuiz.id)"
       @cancel="cancelDelete"
+    />
+    <InstructionsDialog v-model="showQuizInstructions" @start="beginQuiz" />
+    <StartQuizDialog
+      v-if="startQuiz"
+      :quiz="selectedQuiz"
+      @finished="handleFinish"
     />
   </v-container>
   <v-row justify="center" align="center" class="h-100" v-if="loading">

@@ -43,7 +43,18 @@ class ClassServices {
   addManualQuiz(data) {
     return apiClient.post("manual/quiz", data);
   }
+  updateQuestion(data) {
+    return apiClient.put("update/question", data);
+  }
 
+  deleteQuestion(questionId) {
+    return apiClient.delete("delete/question/"+questionId);
+  }
+
+  addQuestion(data) {
+    return apiClient.post("add/question", data);
+  }
+  
 }
 
 export default new ClassServices();

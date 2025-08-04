@@ -12,8 +12,8 @@ class ClassServices {
     return apiClient.post("quiz", data);
   }
 
-  getQuizzes(classId){
-    return apiClient.get("quiz/all/"+classId);
+ getQuizzes(classId, userId){
+    return apiClient.get("quiz/all/"+classId+"?userId="+userId);
   }
   
   getQuizDetails(quizId) {
@@ -53,6 +53,10 @@ class ClassServices {
 
   addQuestion(data) {
     return apiClient.post("add/question", data);
+  }
+
+    updateQuizLock(data) {
+    return apiClient.put("update/quiz/type", data);
   }
   
 }

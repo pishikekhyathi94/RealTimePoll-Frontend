@@ -22,6 +22,7 @@ const createAccountFormRef = ref(null);
 const showPassword = ref(false);
 const chooseRoleDialog = ref(false);
 const selectedRole = ref(null);
+const userRoles = ref(null);
 
 const inputRules = ref({
   required: [(v) => !!v || "Text Required"],
@@ -85,16 +86,16 @@ async function login() {
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = "Login successful!";
-      const roles = data?.data?.roles;
-       if (roles?.includes("student") && roles?.includes("professor")) {
-        chooseRoleDialog.value = true;
-      } else if (roles?.includes("professor")) {
+      const rolesData = data?.data?.roles;
+      if (rolesData?.length > 1) {
+        chooseRoleDialog.value = data?.data?.roles;
+      } else if (rolesData?.includes("professor")) {
         window.localStorage.setItem("userRole", "professor");
         router.push({ name: "professor" });
-      } else if (roles?.includes("student")) {
+      } else if (rolesData?.includes("student")) {
         window.localStorage.setItem("userRole", "student");
         router.push({ name: "student" });
-      } else if (roles?.includes("admin")) {
+      } else if (rolesData?.includes("admin")) {
         window.localStorage.setItem("userRole", "admin");
         router.push({ name: "admin" });
       }
@@ -158,8 +159,8 @@ function proceedWithRole() {
               v-model="user.password"
               label="Password"
               :type="showPassword ? 'text' : 'password'"
-                :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                @click:append-inner="togglePasswordVisibility"
+              :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
+              @click:append-inner="togglePasswordVisibility"
               :rules="inputRules.pass"
               class="required-field"
               required
@@ -193,7 +194,7 @@ function proceedWithRole() {
 
               <v-select
                 v-model="user.roles"
-                :items="['student', 'professor', 'admin']"
+                :items="['student', 'professor']"
                 label="Sign As"
                 :rules="inputRules.roles"
                 multiple
@@ -222,14 +223,18 @@ function proceedWithRole() {
           <v-card-title>Select Role</v-card-title>
           <v-card-text>
             <v-radio-group v-model="selectedRole">
-              <v-radio label="Professor" value="professor"></v-radio>
-              <v-radio label="Student" value="student"></v-radio>
-              <v-radio label="Admin" value="admin"></v-radio>
+              <v-radio v-if="userRoles.includes('professor')" label="Professor" value="professor"></v-radio>
+              <v-radio v-if="userRoles.includes('student')" label="Student" value="student"></v-radio>
+              <v-radio v-if="userRoles.includes('admin')" label="Admin" value="admin"></v-radio>
             </v-radio-group>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-      <v-btn color="primary" @click="proceedWithRole" :disabled="!selectedRole">
+            <v-btn
+              color="primary"
+              @click="proceedWithRole"
+              :disabled="!selectedRole"
+            >
               Proceed
             </v-btn>
           </v-card-actions>

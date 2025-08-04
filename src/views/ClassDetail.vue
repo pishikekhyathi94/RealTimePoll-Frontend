@@ -44,7 +44,7 @@ function openAddQuizDialog() {
 
 async function fetchQuizzes() {
   try {
-    const response = await ClassServices.getQuizzes(classId);
+    const response = await ClassServices.getQuizzes(classId, user.value.id);
     quizzes.value = response.data;
   } catch (error) {
     console.error("Error fetching quizzes:", error);
@@ -129,9 +129,41 @@ function goToQuiz(quizId) {
   }
 }
 
-function beginQuiz() {
-  showQuizInstructions.value = false;
-  startQuiz.value = true;
+async function updatequicLock(quizId, quizType) {
+  await ClassServices.updateQuizLock({
+    quizId: quizId?.id,
+    quizType: quizType
+  })
+    .then(async (response) => {
+      if (response.status === 200) {
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = "Quiz locked successfully!";
+        await fetchQuizzes();
+      }
+    })
+    .catch((error) => {
+      console.error("Error deleting quiz:", error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = "Failed to lock quiz.";
+    });
+}
+
+async function beginQuiz() {
+  await ClassServices.takeQuiz({
+    userId: user.value.id,
+    quizId: selectedQuiz.value.id
+  }).then(async (res) => {
+    if(res?.status === 200){
+      showQuizInstructions.value = false;
+      startQuiz.value = true;
+    }
+  }).catch((error) => {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text = "Failed to start quiz.";
+  });
 }
 
 function handleFinish() {
@@ -165,7 +197,6 @@ function handleFinish() {
         >Add Quiz</v-btn
       >
     </v-row>
-
     <v-list two-line v-if="quizzes.length > 0">
       <v-list-item v-for="quiz in quizzes" :key="quiz.id">
         <v-list-item-content>
@@ -181,10 +212,21 @@ function handleFinish() {
               class="my-2"
               prepend-icon="mdi-account-plus"
               color="primary"
-              v-if="userRole === 'student'"
-              variant="flat"
+               v-if="userRole === 'student' && quiz.is_finished === false"
+              :disabled="!quiz.is_enabled"
+               variant="flat"
             >
               Start Quiz
+            </v-btn>
+            <v-btn
+              @click="updatequicLock(quiz, !quiz.is_enabled)"
+              class="my-2 mr-3"
+              :prepend-icon="quiz.is_enabled ? 'mdi-lock' : 'mdi-lock-open'" 
+              color="primary"
+               v-if="userRole === 'professor' || userRole === 'admin'"
+              variant="flat"
+            >
+              {{ quiz.is_enabled ? "Lock" : "Unlock" }}
             </v-btn>
             <v-btn
               @click="openDeleteDialog(quiz)"

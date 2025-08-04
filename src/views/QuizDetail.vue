@@ -13,6 +13,7 @@ const userRole = ref(null);
 const isEditDialogOpen = ref(false);
 const selectedQuestion = ref(null);
 const isDeleteDialogOpen = ref(false);
+const openAddQuestionDialog = ref(false);
 const snackbar = ref({
   value: false,
   color: "",
@@ -20,6 +21,15 @@ const snackbar = ref({
 });
 const classId = route.params.classId;
 const quizId = route.params.quizId;
+const newQuestion = ref({
+  name: "",
+  timer: 0,
+  quizId: quizId,
+  option: [
+    { name: "", correctOption: false },
+    { name: "", correctOption: false },
+  ],
+});
 
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
@@ -93,6 +103,42 @@ async function handleQuestionUpdate(updatedQuestion) {
     });
 }
 
+async function handleQuestionAdd(updatedQuestion) {
+  const payload = {
+    question: updatedQuestion?.name,
+    timer: updatedQuestion?.timer,
+    quizId: updatedQuestion?.quizId,
+    options: updatedQuestion?.option.map((o) => {
+      return {
+        option: o.name,
+        is_correct: o.correctOption,
+      };
+    }),
+  };
+  await ClassServices.addQuestion(payload)
+    .then(async (response) => {
+      if (response?.status === 200) {
+        isEditDialogOpen.value = false;
+        selectedQuestion.value = null;
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = "Question updated successfully.";
+        await fetchQuizDetails();
+      } else {
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = "Failed to update question.";
+      }
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text =
+        error?.response?.data?.message ||
+        "An error occurred while updating the question.";
+    });
+}
+
 function openDeleteDialog(question) {
   selectedQuestion.value = question;
   isDeleteDialogOpen.value = true;
@@ -139,11 +185,15 @@ async function deleteQuestion(questionId) {
         <h2>Title: {{ quizzes?.name }}</h2>
       </v-btn>
     </v-row>
-    <v-card class="pa-4 mb-4">
+    <v-card class="pa-4 mb-4 d-flex align-center justify-space-between">
+      <div>
         <v-card-title class="text-h5">{{ quizzes?.name }}</v-card-title>
         <v-card-subtitle>{{ quizzes?.description }}</v-card-subtitle>
-          </v-card>
-
+      </div>
+      <v-btn color="primary" @click="openAddQuestionDialog = true"
+        >Add Question</v-btn
+      >
+    </v-card>
     <v-card
       v-for="question in quizzes?.question"
       :key="question?.id"
@@ -195,6 +245,11 @@ async function deleteQuestion(questionId) {
     :isEdit="true"
     :question="selectedQuestion"
     @updateQuestion="handleQuestionUpdate"
+  />
+  <EditQuestionDialog
+    v-model="openAddQuestionDialog"
+    :question="newQuestion"
+    @updateQuestion="handleQuestionAdd"
   />
   <DeleteConfirmationDialog
     v-model="isDeleteDialogOpen"

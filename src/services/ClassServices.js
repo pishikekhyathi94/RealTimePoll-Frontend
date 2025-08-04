@@ -12,8 +12,8 @@ class ClassServices {
     return apiClient.post("quiz", data);
   }
 
-  getQuizzes(classId){
-    return apiClient.get("quiz/all/"+classId);
+ getQuizzes(classId, userId){
+    return apiClient.get("quiz/all/"+classId+"?userId="+userId);
   }
   
   getQuizDetails(quizId) {
@@ -43,7 +43,30 @@ class ClassServices {
   addManualQuiz(data) {
     return apiClient.post("manual/quiz", data);
   }
+  updateQuestion(data) {
+    return apiClient.put("update/question", data);
+  }
 
+  deleteQuestion(questionId) {
+    return apiClient.delete("delete/question/"+questionId);
+  }
+
+  addQuestion(data) {
+    return apiClient.post("add/question", data);
+  }
+
+    updateQuizLock(data) {
+    return apiClient.put("update/quiz/type", data);
+  }
+
+   saveAnswer(data) {
+    return apiClient.post("start/quiz", data);
+  }
+
+  takeQuiz(data) {
+    return apiClient.post("finish/quiz", data);
+  }
+  
 }
 
 export default new ClassServices();

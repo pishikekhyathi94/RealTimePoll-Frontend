@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import ClassServices from "../services/ClassServices";
 
 const props = defineProps({
   quiz: Array,
@@ -14,24 +15,49 @@ const selectedQuiz = props?.quiz;
 const currentQuestion = ref(props?.quiz?.question?.[index?.value]);
 const selectedOptions = ref([]);
 const timeLeft = ref(currentQuestion?.value?.timer);
+const user = ref(null);
 let interval = null;
 
+onMounted(async () => {
+  user.value = JSON.parse(localStorage.getItem("user"));
+});
+
 async function saveAnswer(qId, answer) {
-  console.log("Saving answer...", { qId, answer });
+  let res = false;
+  try {
+    const payload = {
+      userId: user.value.id,
+      quizId: props?.quiz?.id,
+      questionId: qId,
+      optionId: answer,
+    };
+   res = await ClassServices.saveAnswer(payload).then((res) => {
+      if (res?.status === 200) {
+        return true
+      }else{
+        return false
+      }
+   });
+  }catch (error) {
+    return false
+  }
+  return res;
 }
 
-function submitAnswer() {
+async function submitAnswer() {
   clearInterval(interval);
-  saveAnswer(currentQuestion.value.id, selectedOptions.value);
-  selectedOptions.value = [];
-  if (index.value + 1 < props?.quiz?.question.length) {
-    index.value++;
-    currentQuestion.value = props?.quiz?.question?.[index.value];
-    startTimer();
-  } else {
-    questionsCompleted.value = true;
-    clearInterval(interval);
-    currentQuestion.value = null;
+  const res = await saveAnswer(currentQuestion.value.id, selectedOptions.value);
+  if(res){
+    selectedOptions.value = [];
+    if (index.value + 1 < props?.quiz?.question.length) {
+      index.value++;
+      currentQuestion.value = props?.quiz?.question?.[index.value];
+      startTimer();
+    } else {
+      questionsCompleted.value = true;
+      clearInterval(interval);
+      currentQuestion.value = null;
+    }
   }
 }
 
@@ -66,8 +92,8 @@ function handleTabChange() {
   }
 }
 
-function saveOnExit(e) {
-  saveAnswer(currentQuestion.value.id, selectedOptions.value);
+async function saveOnExit(e) {
+  await saveAnswer(currentQuestion.value.id, selectedOptions.value);
   e.preventDefault();
   e.returnValue = "";
 }
@@ -109,7 +135,7 @@ function closeQuiz() {
           v-for="(opt, index) in currentQuestion.option"
           :key="index"
           :label="opt?.name"
-          :value="opt?.name"
+          :value="opt?.id"
           v-model="selectedOptions"
         />
       </v-card-text>

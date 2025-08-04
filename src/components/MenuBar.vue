@@ -82,11 +82,6 @@ function switchProfile(selectedRole) {
         <v-card>
           <v-card-text>
             <div class="mx-auto text-center">
-              <v-avatar color="accent">
-                <span class="white--text text-h5">{{
-                  `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`
-                }}</span>
-              </v-avatar>
               <h3>{{ `${user.firstName} ${user.lastName}` }}</h3>
               <p class="text-caption mt-1">
                 {{ user.email }}

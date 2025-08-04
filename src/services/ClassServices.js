@@ -58,6 +58,14 @@ class ClassServices {
     updateQuizLock(data) {
     return apiClient.put("update/quiz/type", data);
   }
+
+   saveAnswer(data) {
+    return apiClient.post("start/quiz", data);
+  }
+
+  takeQuiz(data) {
+    return apiClient.post("finish/quiz", data);
+  }
   
 }
 

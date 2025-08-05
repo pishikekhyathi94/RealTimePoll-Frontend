@@ -47,10 +47,10 @@ async function fetchQuizzes() {
     const response = await ClassServices.getQuizzes(classId, user.value.id);
     quizzes.value = response.data;
   } catch (error) {
-    console.error("Error fetching quizzes:", error);
+    console.error("Error fetching quiz:", error);
     snackbar.value.value = true;
     snackbar.value.color = "error";
-    snackbar.value.text = "Failed to fetch quizzes.";
+    snackbar.value.text = "Failed to fetch quiz.";
   }
 }
 
@@ -189,7 +189,7 @@ function handleFinish() {
         <template v-slot:prepend>
           <v-icon size="x-large">mdi-arrow-left</v-icon>
         </template>
-        <h2>Class - {{ classId }} Quizzes</h2>
+        <h2>Class - {{ classId }} Quiz List</h2>
       </v-btn>
       <v-btn
         color="primary"
@@ -257,7 +257,7 @@ function handleFinish() {
       </v-list-item>
     </v-list>
     <div v-else class="text-center pa-4 text-grey">
-      No quizzes available for this class.
+      No quiz available for this class.
     </div>
     <AddQuizDialog v-model="showAddQuiz" @submit="handleAddQuiz" />
     <CreateQuestionsDialog

@@ -174,7 +174,6 @@ function classDetails(cls) {
                       class="book-cover-image"
                       @click="classDetails(cls)"
                     ></v-img>
-
                     <v-card-item @click="classDetails(cls)">
                       <v-card-title class="text-h5 font-weight-bold">{{
                         cls?.name

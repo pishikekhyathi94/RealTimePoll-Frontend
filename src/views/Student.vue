@@ -117,7 +117,7 @@ function classDetails(cls) {
                   >
                     <v-img
                       height="200"
-                      :src="`/Live_Poll.jpg`"
+                      :src="`/class.jpg`"
                       class="book-cover-image"
                       @click="classDetails(cls)"
                     ></v-img>
@@ -193,7 +193,6 @@ function classDetails(cls) {
                           Register Class
                         </v-btn>
                         <v-btn
-                          @click="registerForClass(cls?.id)"
                           class="my-2"
                           prepend-icon="mdi-check"
                           color="primary"

@@ -4,7 +4,7 @@ var baseurl = "";
 if (process.env.NODE_ENV === "development") {
   baseurl = "http://localhost:8080/Realtimepoll";
 } else {
-  baseurl = "/recipeapi/";
+  baseurl = "/RealTimePoll-Frontend/";
 }
 
 const apiClient = axios.create({

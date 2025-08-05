@@ -124,7 +124,7 @@ function classDetails(cls) {
         </v-tabs-window-item>
         <v-tabs-window-item :key="2" :value="2">
           <div v-if="!classesData?.length" class="text-center pa-4 text-grey">
-            No classes to register.
+            No classes.
           </div>
           <v-container v-else>
             <v-row>

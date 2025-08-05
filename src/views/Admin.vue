@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ClassServices from "../services/ClassServices.js";
 import UserServices from "../services/UserServices.js";
+import classImage from "../images/class.jpg";
 
 const router = useRouter();
 const route = useRoute();
@@ -142,7 +143,7 @@ function classDetails(cls) {
                   >
                     <v-img
                       height="200"
-             :src="`/class.jpg`"
+             :src="classImage"
                       class="book-cover-image"
                       @click="classDetails(cls)"
                     ></v-img>

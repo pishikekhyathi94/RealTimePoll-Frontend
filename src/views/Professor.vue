@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import AddClassDialog from "../components/AddClassDialog.vue";
 import ClassServices from "../services/ClassServices.js";
 import DeleteConfirmationDialog from "../components/DeleteConfirmationDialog.vue";
+import classImage from "../images/class.jpg";
 
 const router = useRouter();
 const tab = ref(1);
@@ -182,7 +183,7 @@ function cancelDelete() {
           <v-card class="mx-4 mb-2" max-width="250" min-width="250" hover>
             <v-img
               height="200"
-        :src="`/class.jpg`"
+        :src="classImage"
               class="book-cover-image"
               @click="classDetails(cls?.id)"
             ></v-img>

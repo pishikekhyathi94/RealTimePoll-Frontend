@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import ClassServices from "../services/ClassServices.js";
+import classImage from "../images/class.jpg";
 
 const router = useRouter();
 const tab = ref(1);
@@ -117,7 +118,7 @@ function classDetails(cls) {
                   >
                     <v-img
                       height="200"
-                      :src="`/class.jpg`"
+                      :src="classImage"
                       class="book-cover-image"
                       @click="classDetails(cls)"
                     ></v-img>
@@ -170,11 +171,10 @@ function classDetails(cls) {
                   >
                     <v-img
                       height="200"
-                      :src="`/class.jpg`"
+                      :src="classImage"
                       class="book-cover-image"
                       @click="classDetails(cls)"
                     ></v-img>
-
                     <v-card-item @click="classDetails(cls)">
                       <v-card-title class="text-h5 font-weight-bold">{{
                         cls?.name

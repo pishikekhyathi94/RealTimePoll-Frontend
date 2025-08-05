@@ -21,6 +21,7 @@ const user = ref({
 const createAccountFormRef = ref(null);
 const showPassword = ref(false);
 const chooseRoleDialog = ref(false);
+const multiRolesData = ref([]);
 const selectedRole = ref(null);
 const userRoles = ref(null);
 
@@ -88,7 +89,8 @@ async function login() {
       snackbar.value.text = "Login successful!";
       const rolesData = data?.data?.roles;
       if (rolesData?.length > 1) {
-        chooseRoleDialog.value = data?.data?.roles;
+        chooseRoleDialog.value = true;
+        multiRolesData.value = data?.data?.roles;
       } else if (rolesData?.includes("professor")) {
         window.localStorage.setItem("userRole", "professor");
         router.push({ name: "professor" });
@@ -137,6 +139,7 @@ function proceedWithRole() {
     router.push({ name: "admin" });
   }
   chooseRoleDialog.value = false;
+  multiRolesData.value = [];
 }
 </script>
 
@@ -223,9 +226,10 @@ function proceedWithRole() {
           <v-card-title>Select Role</v-card-title>
           <v-card-text>
             <v-radio-group v-model="selectedRole">
-              <v-radio v-if="userRoles.includes('professor')" label="Professor" value="professor"></v-radio>
-              <v-radio v-if="userRoles.includes('student')" label="Student" value="student"></v-radio>
-              <v-radio v-if="userRoles.includes('admin')" label="Admin" value="admin"></v-radio>
+              {{ console.log(chooseRoleDialog, "226::", multiRolesData) }}
+              <v-radio v-if="multiRolesData?.includes('professor')" label="Professor" value="professor"></v-radio>
+              <v-radio v-if="multiRolesData?.includes('student')" label="Student" value="student"></v-radio>
+              <v-radio v-if="multiRolesData?.includes('admin')" label="Admin" value="admin"></v-radio>
             </v-radio-group>
           </v-card-text>
           <v-card-actions>

@@ -169,8 +169,9 @@ function update() {
             class="mt-2"
             @click="
               editedQuestion?.option.push({
-                option: '',
-                is_correct: false,
+                name: '',
+                correctOption: false,
+                questionId: editedQuestion?.id,
               })
             "
           >

@@ -90,7 +90,7 @@ function switchProfile(selectedRole) {
               <div class="d-flex flex-column gap-4">
                 <v-btn
                   v-if="
-                    user.roles.length > 1 &&
+                    user.roles.length > 1 && user.roles.includes('student') &&
                     (userRole === 'professor' || userRole === 'admin')
                   "
                   variant="flat"
@@ -102,7 +102,7 @@ function switchProfile(selectedRole) {
                 </v-btn>
                 <v-btn
                   v-if="
-                    user.roles.length > 1 &&
+                    user.roles.length > 1 && user.roles.includes('professor') &&
                     (userRole === 'student' || userRole === 'admin')
                   "
                   variant="flat"
@@ -114,7 +114,7 @@ function switchProfile(selectedRole) {
                 </v-btn>
                 <v-btn
                   v-if="
-                    user.roles.length > 1 &&
+                    user.roles.length > 1 && user.roles.includes('admin') &&
                     (userRole === 'student' || userRole === 'professor')
                   "
                   variant="flat"

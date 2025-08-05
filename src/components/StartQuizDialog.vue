@@ -57,6 +57,7 @@ async function submitAnswer() {
       questionsCompleted.value = true;
       clearInterval(interval);
       currentQuestion.value = null;
+       emit("finished");
     }
   }
 }
@@ -89,6 +90,7 @@ function handleTabChange() {
     questionsCompleted.value = true;
     clearInterval(interval);
     currentQuestion.value = null;
+     emit("finished");
   }
 }
 
@@ -96,6 +98,7 @@ async function saveOnExit(e) {
   await saveAnswer(currentQuestion.value.id, selectedOptions.value);
   e.preventDefault();
   e.returnValue = "";
+   emit("finished");
 }
 
 function closeQuiz() {

@@ -168,6 +168,7 @@ async function beginQuiz() {
 
 function handleFinish() {
   startQuiz.value = false;
+  fetchQuizzes();
 }
 </script>
 
@@ -217,6 +218,15 @@ function handleFinish() {
                variant="flat"
             >
               Start Quiz
+            </v-btn>
+            <v-btn
+              class="my-2"
+              prepend-icon="mdi-check"
+              color="green"
+              v-if="userRole === 'student' && quiz.is_finished === true"
+              variant="text"
+            >
+              Quiz completed
             </v-btn>
             <v-btn
               @click="updatequicLock(quiz, !quiz.is_enabled)"

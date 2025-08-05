@@ -1,7 +1,7 @@
 import apiClient from "./services";
 
 export default {
-  getUser() {
+  getUsers() {
     return apiClient.get("users");
   },
   addUser(user) {

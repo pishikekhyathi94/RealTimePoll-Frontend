@@ -138,7 +138,7 @@ async function updatequicLock(quizId, quizType) {
       if (response.status === 200) {
         snackbar.value.value = true;
         snackbar.value.color = "green";
-        snackbar.value.text = "Quiz locked successfully!";
+        snackbar.value.text = "Quiz status updated successfully!";
         await fetchQuizzes();
       }
     })
@@ -146,7 +146,7 @@ async function updatequicLock(quizId, quizType) {
       console.error("Error deleting quiz:", error);
       snackbar.value.value = true;
       snackbar.value.color = "error";
-      snackbar.value.text = "Failed to lock quiz.";
+      snackbar.value.text = "Failed to update quiz status.";
     });
 }
 

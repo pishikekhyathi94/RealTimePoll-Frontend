@@ -66,6 +66,14 @@ class ClassServices {
   takeQuiz(data) {
     return apiClient.post("finish/quiz", data);
   }
+
+    getQuizReports(data) {
+    return apiClient.get("quiz/report/"+data);
+  }
+
+  getQuizReportsOfUser(userID, quizId) {
+    return apiClient.get(`quiz/report/${quizId}?userId=${userID}`);
+  }
   
 }
 

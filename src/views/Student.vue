@@ -1,10 +1,11 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import ClassServices from "../services/ClassServices.js";
 import classImage from "../images/class.jpg";
 
 const router = useRouter();
+const route = useRoute();
 const tab = ref(1);
 const loading = ref(false);
 const user = ref(null);
@@ -19,7 +20,7 @@ const snackbar = ref({
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
   router.replace({ query: {} });
-   await fetchClasses();
+  await fetchClasses();
 });
 
 watch(tab, async (newTab) => {
@@ -66,8 +67,8 @@ async function registerForClass(classId) {
 }
 
 function classDetails(cls) {
-  if(cls?.isRegistered && cls?.id){
-    router.push({ name: "classDetails", params: { classId: cls?.id } });
+  if (cls?.isRegistered && cls?.id) {
+    router.push({ name: "classDetails", params: { classId: cls?.id, className: cls?.name } });
   }
 }
 </script>
@@ -85,7 +86,6 @@ function classDetails(cls) {
       <v-tabs v-model="tab" align-tabs="left" color="primary" class="mb-4 px-6">
         <v-tab :value="2">Classes</v-tab>
         <v-tab :value="1">My Classes</v-tab>
-        <v-tab :value="3">Results</v-tab>
       </v-tabs>
     </v-col>
   </v-row>
@@ -138,7 +138,7 @@ function classDetails(cls) {
                           variant="flat"
                           disabled="true"
                         >
-                           Registered
+                          Registered
                         </v-btn>
                       </v-col>
                     </v-card-actions>
@@ -200,21 +200,12 @@ function classDetails(cls) {
                           variant="flat"
                           disabled="true"
                         >
-                           Registered
+                          Registered
                         </v-btn>
                       </v-col>
                     </v-card-actions>
                   </v-card>
                 </div>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-tabs-window-item>
-        <v-tabs-window-item :key="3" :value="3">
-          <v-container>
-            <v-row>
-              <v-col cols="12" class="pa-0">
-                <p>result</p>
               </v-col>
             </v-row>
           </v-container>

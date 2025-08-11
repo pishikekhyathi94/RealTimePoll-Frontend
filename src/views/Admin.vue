@@ -73,7 +73,10 @@ async function fetchUsers() {
 }
 
 function classDetails(cls) {
-  router.push({ name: "classDetails", params: { classId: cls?.id } });
+  router.push({
+    name: "classDetails",
+    params: { classId: cls?.id, className: cls?.name },
+  });
 }
 </script>
 

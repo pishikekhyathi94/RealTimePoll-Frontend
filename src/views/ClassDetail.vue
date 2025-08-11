@@ -5,8 +5,9 @@ import AddQuizDialog from "../components/AddQuizDialog.vue";
 import ClassServices from "../services/ClassServices";
 import DeleteConfirmationDialog from "../components/DeleteConfirmationDialog.vue";
 import InstructionsDialog from "../components/InstructionsDialog.vue";
-import StartQuizDialog from "../components/StartQuizDialog.vue";
 import CreateQuestionsDialog from "../components/CreateQuestionsDialog.vue";
+import { downloadExcel } from "../reports/QuizReportDownloadStudent";
+import { format, parseISO } from "date-fns";
 
 const route = useRoute();
 const router = useRouter();
@@ -21,8 +22,8 @@ const snackbar = ref({
 });
 const quizzes = ref([]);
 const classId = route.params.classId;
+const className = route.params.className;
 const showQuizInstructions = ref(false);
-const startQuiz = ref(false);
 const showCreateQuiz = ref(false);
 const manualEditQuiz = ref(null);
 const loading = ref(false);
@@ -123,16 +124,20 @@ async function deleteQuiz(quizId) {
     });
 }
 
-function goToQuiz(quizId) {
-  if (userRole.value === "professor" || userRole.value === "admin") {
-    router.push(`/professor/class/${classId}/quiz/${quizId}`);
+function goToQuiz(quizId, className, isQuizCompleted = false) {
+  if (
+    userRole.value === "professor" ||
+    userRole.value === "admin" ||
+    (userRole.value === "student" && isQuizCompleted)
+  ) {
+    router.push(`/professor/class/${classId}/${className}/quiz/${quizId}`);
   }
 }
 
 async function updatequicLock(quizId, quizType) {
   await ClassServices.updateQuizLock({
     quizId: quizId?.id,
-    quizType: quizType
+    quizType: quizType,
   })
     .then(async (response) => {
       if (response.status === 200) {
@@ -153,22 +158,45 @@ async function updatequicLock(quizId, quizType) {
 async function beginQuiz() {
   await ClassServices.takeQuiz({
     userId: user.value.id,
-    quizId: selectedQuiz.value.id
-  }).then(async (res) => {
-    if(res?.status === 200){
-      showQuizInstructions.value = false;
+    quizId: selectedQuiz.value.id,
+  })
+    .then(async (res) => {
+      if (res?.status === 200) {
+        showQuizInstructions.value = false;
       startQuiz.value = true;
-    }
-  }).catch((error) => {
-    snackbar.value.value = true;
-    snackbar.value.color = "error";
-    snackbar.value.text = "Failed to start quiz.";
+      }
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error?.response?.data?.message || "Failed to start quiz.";
+    });
+}
+
+function viewQuizReports(quiz) {
+  router.push({
+    name: "quizReports",
+    params: { quizId: quiz.id },
   });
 }
 
-function handleFinish() {
-  startQuiz.value = false;
-  fetchQuizzes();
+async function downloadQuizReports(quizId, quizName) {
+  await ClassServices.getQuizReports(quizId)
+    .then((response) => {
+      if (response.status === 200 && response?.data?.reports?.length > 0) {
+        downloadExcel(response?.data?.reports, quizName);
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+function getDateFormat(date) {
+  if (!date) return "";
+  const parsedDate = parseISO(date);
+  const prettyDate = format(parsedDate, "MMM d, yyyy, h:mm a");
+  return prettyDate;
 }
 </script>
 
@@ -189,7 +217,7 @@ function handleFinish() {
         <template v-slot:prepend>
           <v-icon size="x-large">mdi-arrow-left</v-icon>
         </template>
-        <h2>Class - {{ classId }} Quiz List</h2>
+        <h2>{{ className }} Quiz List</h2>
       </v-btn>
       <v-btn
         color="primary"
@@ -201,8 +229,12 @@ function handleFinish() {
     <v-list two-line v-if="quizzes.length > 0">
       <v-list-item v-for="quiz in quizzes" :key="quiz.id">
         <v-list-item-content>
-          <div role="button" @click="goToQuiz(quiz.id)">
+          <div role="button" @click="goToQuiz(quiz.id, className)">
             <v-list-item-title>{{ quiz.name }}</v-list-item-title>
+            <v-list-item-title>
+              Start Time:
+              {{ getDateFormat(quiz.start_time) }}</v-list-item-title
+            >
             <v-list-item-subtitle class="mb-3">{{
               quiz.description
             }}</v-list-item-subtitle>
@@ -213,9 +245,9 @@ function handleFinish() {
               class="my-2"
               prepend-icon="mdi-account-plus"
               color="primary"
-               v-if="userRole === 'student' && quiz.is_finished === false"
+              v-if="userRole === 'student' && quiz.is_finished === false"
               :disabled="!quiz.is_enabled"
-               variant="flat"
+              variant="flat"
             >
               Start Quiz
             </v-btn>
@@ -229,11 +261,20 @@ function handleFinish() {
               Quiz completed
             </v-btn>
             <v-btn
+              class="my-2 mr-2"
+              v-if="userRole === 'student' && quiz.is_finished === true"
+              variant="outlined"
+              color="primary"
+              @click="goToQuiz(quiz.id, className, true)"
+            >
+              View Results
+            </v-btn>
+            <v-btn
               @click="updatequicLock(quiz, !quiz.is_enabled)"
               class="my-2 mr-3"
-              :prepend-icon="quiz.is_enabled ? 'mdi-lock' : 'mdi-lock-open'" 
+              :prepend-icon="quiz.is_enabled ? 'mdi-lock' : 'mdi-lock-open'"
               color="primary"
-               v-if="userRole === 'professor' || userRole === 'admin'"
+              v-if="userRole === 'professor' || userRole === 'admin'"
               variant="flat"
             >
               {{ quiz.is_enabled ? "Lock" : "Unlock" }}
@@ -247,6 +288,26 @@ function handleFinish() {
               variant="flat"
             >
               Delete Quiz
+            </v-btn>
+            <v-btn
+              @click="viewQuizReports(quiz)"
+              class="my-2 ml-3"
+              prepend-icon="mdi-trash-can"
+              color="primary"
+              v-if="userRole === 'professor' || userRole === 'admin'"
+              variant="flat"
+            >
+              View Quiz Reports
+            </v-btn>
+            <v-btn
+              class="my-2 ml-3"
+              @click="downloadQuizReports(quiz.id, quiz.name)"
+              prepend-icon="mdi-trash-can"
+              color="primary"
+              v-if="userRole === 'professor' || userRole === 'admin'"
+              variant="flat"
+            >
+              Download Quiz Reports
             </v-btn>
           </v-list-item-action>
         </v-list-item-content>

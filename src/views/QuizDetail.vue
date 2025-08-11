@@ -20,6 +20,7 @@ const snackbar = ref({
   text: "",
 });
 const classId = route.params.classId;
+const className = route.params.className;
 const quizId = route.params.quizId;
 const newQuestion = ref({
   name: "",
@@ -63,7 +64,7 @@ function closeSnackBar() {
 }
 
 function goBack() {
-  router.push({ name: "classDetails", params: { classId } });
+  router.push({ name: "classDetails", params: { classId, className } });
 }
 
 function openEditDialog(question) {

@@ -18,20 +18,26 @@ const router = createRouter({
       name: "student",
       component: () => import("./views/Student.vue"),
     },
-     {
+    {
       path: "/admin",
       name: "admin",
       component: () => import("./views/Admin.vue"),
     },
     {
-      path: "/professor/class/:classId",
+      path: "/professor/class/:classId/:className",
       name: "classDetails",
       component: () => import("./views/ClassDetail.vue"),
     },
     {
-      path: "/professor/class/:classId/quiz/:quizId",
+      path: "/professor/class/:classId/::className/quiz/:quizId",
       name: "quizDetails",
       component: () => import("./views/QuizDetail.vue"),
+    },
+    {
+      path: "/quizReports/:quizId",
+      name: "quizReports",
+      component: () => import("./components/QuizReports.vue"),
+      meta: { requiresAuth: true },
     },
     {
       path: "/recipes",

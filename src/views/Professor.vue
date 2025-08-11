@@ -99,8 +99,8 @@ function openAddDialog() {
   showAddClassDialog.value = true;
 }
 
-function classDetails(classId) {
-  router.push({ name: "classDetails", params: { classId } });
+function classDetails(classId, className) {
+  router.push({ name: "classDetails", params: { classId, className } });
 }
 
 function openEditClassModal(cls) {
@@ -109,7 +109,7 @@ function openEditClassModal(cls) {
 }
 
 async function updateClass(classValues) {
-   const payload = {
+  const payload = {
     name: classValues.name,
   };
   await ClassServices.updateClass(selectedClass.value.id, payload)
@@ -155,67 +155,75 @@ function cancelDelete() {
         <v-tab :value="1">Classes</v-tab>
       </v-tabs>
     </v-col>
-    <v-col cols="2">
-      <v-btn
-        @click="openAddDialog"
-        v-if="tab === 1"
-        class="my-2"
-        color="primary"
-      >
-        Add Class
-      </v-btn>
-    </v-col>
-  </v-row>
-  <v-row>
+            <v-col cols="2">
+              <v-btn
+                @click="openAddDialog"
+                v-if="tab === 1"
+                class="my-2"
+                color="primary"
+              >
+                Add Class
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
     <v-col cols="11" class="mx-auto">
-      <div v-if="!user">
-        <p class="text-center">Please log in to manage your classes.</p>
-      </div>
-      <div v-else class="d-flex flex-wrap gap-4">
-        <div v-if="!classesData?.length" class="text-center pa-4 text-grey">
-          You haven't created any classes yet.
-        </div>
-        <div
-          v-for="(cls, index) in classesData"
-          :key="cls.id"
-          class="d-flex align-center"
-        >
-          <v-card class="mx-4 mb-2" max-width="250" min-width="250" hover>
-            <v-img
-              height="200"
+              <div v-if="!user">
+                <p class="text-center">Please log in to manage your classes.</p>
+              </div>
+              <div v-else class="d-flex flex-wrap gap-4">
+                <div
+                  v-if="!classesData?.length"
+                  class="text-center pa-4 text-grey"
+                >
+                  You haven't created any classes yet.
+                </div>
+                <div
+                  v-for="(cls, index) in classesData"
+                  :key="cls.id"
+                  class="d-flex align-center"
+                >
+                  <v-card
+                    class="mx-4 mb-2"
+                    max-width="250"
+                    min-width="250"
+                    hover
+                  >
+                    <v-img
+                      height="200"
         :src="classImage"
-              class="book-cover-image"
-              @click="classDetails(cls?.id)"
-            ></v-img>
+                      class="book-cover-image"
+                      @click="classDetails(cls?.id, cls?.name)"
+                    ></v-img>
 
-            <v-card-item @click="classDetails(cls?.id)">
-              <v-card-title class="text-h5 font-weight-bold">{{
-                cls?.name
-              }}</v-card-title>
-            </v-card-item>
-            <v-card-actions v-if="tab === 1 || tab === 2">
-              <v-col cols="6" class="pa-0">
-                <v-btn
-                  color="primary"
-                  icon="mdi-pencil-box-outline"
-                  size="large"
-                  @click="openEditClassModal(cls)"
-                ></v-btn>
-              </v-col>
-              <v-col cols="6" class="d-flex pa-0 justify-end">
-                <v-btn
-                  color="primary"
-                  icon="mdi-delete"
-                  @click="openDeleteDialog(cls)"
-                  size="large"
-                ></v-btn>
-              </v-col>
-            </v-card-actions>
-          </v-card>
-        </div>
-      </div>
-    </v-col>
-  </v-row>
+                    <v-card-item @click="classDetails(cls?.id, cls?.name)">
+                      <v-card-title class="text-h5 font-weight-bold">{{
+                        cls?.name
+                      }}</v-card-title>
+                    </v-card-item>
+                    <v-card-actions v-if="tab === 1 || tab === 2">
+                      <v-col cols="6" class="pa-0">
+                        <v-btn
+                          color="primary"
+                          icon="mdi-pencil-box-outline"
+                          size="large"
+                          @click="openEditClassModal(cls)"
+                        ></v-btn>
+                      </v-col>
+                      <v-col cols="6" class="d-flex pa-0 justify-end">
+                        <v-btn
+                          color="primary"
+                          icon="mdi-delete"
+                          @click="openDeleteDialog(cls)"
+                          size="large"
+                        ></v-btn>
+                      </v-col>
+                    </v-card-actions>
+                  </v-card>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
   <AddClassDialog v-model="showAddClassDialog" @submit="createClass" />
   <AddClassDialog
     v-model="isEditClassDialogOpen"

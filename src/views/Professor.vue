@@ -5,6 +5,7 @@ import AddClassDialog from "../components/AddClassDialog.vue";
 import ClassServices from "../services/ClassServices.js";
 import DeleteConfirmationDialog from "../components/DeleteConfirmationDialog.vue";
 import classImage from "../images/class.jpg";
+import PollView from "../components/PollView.vue";
 
 const router = useRouter();
 const tab = ref(1);
@@ -25,6 +26,12 @@ const newClass = ref({ name: "" });
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
   if (user) {
+    await fetchClasses();
+  }
+});
+
+watch(tab, async (newTab) => {
+  if (user && newTab === 1) {
     await fetchClasses();
   }
 });
@@ -149,12 +156,17 @@ function cancelDelete() {
 
 <template>
   <router-view />
-  <v-row class="px-3 pt-4" align="center" >
+  <v-row class="px-3 pt-4" align="center">
     <v-col cols="10">
       <v-tabs v-model="tab" align-tabs="left" color="primary" class="mb-4 px-6">
         <v-tab :value="1">Classes</v-tab>
+        <v-tab :value="2">Live Poll</v-tab>
       </v-tabs>
     </v-col>
+    <v-tabs-window v-model="tab" class="w-100">
+      <v-tabs-window-item :key="1" :value="1">
+        <v-container class="ma-0 py-0" fluid>
+          <v-row justify="end">
             <v-col cols="2">
               <v-btn
                 @click="openAddDialog"
@@ -167,7 +179,7 @@ function cancelDelete() {
             </v-col>
           </v-row>
           <v-row>
-    <v-col cols="11" class="mx-auto">
+            <v-col cols="12">
               <div v-if="!user">
                 <p class="text-center">Please log in to manage your classes.</p>
               </div>
@@ -224,6 +236,19 @@ function cancelDelete() {
               </div>
             </v-col>
           </v-row>
+        </v-container>
+      </v-tabs-window-item>
+      <v-tabs-window-item :key="2" :value="2">
+        <v-container>
+          <v-row>
+            <v-col cols="12" class="pa-0">
+             <PollView />
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-tabs-window-item>
+    </v-tabs-window>
+  </v-row>
   <AddClassDialog v-model="showAddClassDialog" @submit="createClass" />
   <AddClassDialog
     v-model="isEditClassDialogOpen"

@@ -41,11 +41,30 @@ onMounted(async () => {
 });
 async function fetchQuizDetails() {
   try {
-    const response = await ClassServices.getQuizDetails(quizId);
+    let response = null;
+    if (userRole.value === "professor" || userRole.value === "admin") {
+      response = await ClassServices.getQuizDetails(quizId);
+    } else if (userRole.value === "student") {
+      response = await ClassServices.getQuizReportsOfUser(
+        user.value.id,
+        quizId
+      );
+    }
     if (response.status === 200) {
-      // Process the quiz details as needed
-      console.log("Quiz Details:", response.data);
-      quizzes.value = response.data;
+      if (userRole.value === "professor" || userRole.value === "admin") {
+        quizzes.value = response.data;
+      } else {
+        const report = response.data?.report;
+        quizzes.value = {
+          name: report?.quiz_details?.name,
+          description: report?.quiz_details?.description,
+          question: report?.questions.map((q) => ({
+            name: q.question,
+            option: q.options,
+          })),
+          user: report?.user,
+        };
+      }
     } else {
       snackbar.value.value = true;
       snackbar.value.color = "error";
@@ -191,7 +210,10 @@ async function deleteQuestion(questionId) {
         <v-card-title class="text-h5">{{ quizzes?.name }}</v-card-title>
         <v-card-subtitle>{{ quizzes?.description }}</v-card-subtitle>
       </div>
-      <v-btn color="primary" @click="openAddQuestionDialog = true"
+      <v-btn
+        color="primary"
+        v-if="!userRole === 'student'"
+        @click="openAddQuestionDialog = true"
         >Add Question</v-btn
       >
     </v-card>
@@ -201,7 +223,7 @@ async function deleteQuestion(questionId) {
       class="mb-4"
     >
       <v-card-title>
-        {{ question?.name }}
+        {{ question?.name || question?.question }}
         <v-chip class="ml-auto" color="blue" text-color="white">
           ⏱ {{ question?.timer }} sec
         </v-chip>
@@ -212,10 +234,35 @@ async function deleteQuestion(questionId) {
           <v-list-item
             v-for="option in question?.option"
             :key="option.id"
-            :class="option.correctOption ? 'bg-green-lighten-4' : ''"
+            :class="
+              option.correctOption
+                ? 'bg-green-lighten-4'
+                : option?.user_selected
+                ? 'bg-red-lighten-4'
+                : ''
+            "
           >
             <v-list-item-content>{{ option.name }}</v-list-item-content>
-            <v-list-item-icon v-if="option.correctOption"> </v-list-item-icon>
+            <v-list-item-icon
+              class="ml-3"
+              v-if="
+                option?.correctOption &&
+                option?.user_selected &&
+                userRole === 'student'
+              "
+            >
+              <v-icon color="green" icon="mdi-check-bold"></v-icon>
+            </v-list-item-icon>
+            <v-list-item-icon
+              class="ml-3"
+              v-if="
+                option?.correctOption &&
+                !option?.user_selected &&
+                userRole === 'student'
+              "
+            >
+              <v-icon color="red" icon="mdi-close-thick"></v-icon>
+            </v-list-item-icon>
           </v-list-item>
         </v-list>
       </v-card-text>
@@ -225,6 +272,7 @@ async function deleteQuestion(questionId) {
           variant="text"
           append-icon="mdi-pencil-box-outline"
           size="medium"
+          v-if="!userRole === 'student'"
           @click="openEditDialog(question)"
         >
           <span class="mr-2">Update Question </span></v-btn
@@ -235,6 +283,7 @@ async function deleteQuestion(questionId) {
           append-icon="mdi-delete"
           variant="text"
           @click="openDeleteDialog(question)"
+          v-if="!userRole === 'student'"
         >
           Delete Question</v-btn
         >

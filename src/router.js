@@ -10,26 +10,31 @@ const routes = [
     path: "/professor",
     name: "professor",
     component: () => import("./views/Professor.vue"),
+     meta: { requiresAuth: true },
   },
   {
     path: "/student",
     name: "student",
     component: () => import("./views/Student.vue"),
+     meta: { requiresAuth: true },
   },
   {
     path: "/admin",
     name: "admin",
     component: () => import("./views/Admin.vue"),
+     meta: { requiresAuth: true },
   },
   {
     path: "/professor/class/:classId/:className",
     name: "classDetails",
     component: () => import("./views/ClassDetail.vue"),
+     meta: { requiresAuth: true },
   },
   {
     path: "/professor/class/:classId/::className/quiz/:quizId",
     name: "quizDetails",
     component: () => import("./views/QuizDetail.vue"),
+     meta: { requiresAuth: true },
   },
   {
     path: "/quizReports/:quizId",

@@ -1,7 +1,8 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import ClassServices from "../services/ClassServices";
+import { format } from "date-fns";
 
 const props = defineProps({
   modelValue: Boolean,
@@ -30,6 +31,11 @@ const route = useRoute();
 const title = ref(null);
 const user = ref(null);
 const description = ref(null);
+const startDateMenu = ref(false);
+const startDateObj = ref(null);
+const startDate = ref(null);
+const startTime = ref(null);
+const startDateDisplay = ref("");
 const emit = defineEmits(["update:modelValue"]);
 const classId = route.params.classId;
 const questionErrors = ref([]);
@@ -38,6 +44,7 @@ const correctOptionErrors = ref([]);
 const optionErrorsList = ref([]);
 const titleError = ref(false);
 const descriptionError = ref(false);
+const now = new Date();
 
 function resetValidation() {
   title.value = null;
@@ -65,6 +72,16 @@ onMounted(() => {
     }));
   }
   setupValidationArrays();
+});
+
+watch([startDateObj, startTime], ([date, time]) => {
+  if (date && time) {
+    const [hours, minutes] = time.split(":").map(Number);
+    const newDate = new Date(date);
+    newDate.setHours(hours, minutes, 0, 0);
+    startDate.value = newDate.toISOString();
+    startDateDisplay.value = format(newDate, "MMM dd, yyyy hh:mm a");
+  }
 });
 
 function setupValidationArrays() {
@@ -110,8 +127,42 @@ function close() {
   emit("update:modelValue", false);
 }
 
+const minDate = computed(() => {
+   return new Date().toISOString().split("T")[0];
+});
+
+function allowedHours(hour) {
+   if (!startDateObj.value) return true;
+
+  const selectedDate = format(startDateObj.value, "yyyy-MM-dd");
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  if (selectedDate === today) {
+    return hour >= now.getHours();
+  }
+  return true;
+}
+
+function allowedMinutes(minute) {
+   if (!startDateObj.value || !startTime.value) return true;
+
+  const selectedDate = format(startDateObj.value, "yyyy-MM-dd");
+  const today = format(new Date(), "yyyy-MM-dd");
+
+  if (selectedDate === today) {
+    const selectedHour = parseInt(startTime.value.split(":")[0]);
+    if (selectedHour === now.getHours()) {
+      return minute >= now.getMinutes();
+    }
+  }
+  return true;
+}
+
 function validateQuestion(question, index) {
   const isTitleValid = title.value ? title.value.trim() !== "" : false;
+  const isdateValid = startDate.value
+    ? !isNaN(new Date(startDate.value).getTime())
+    : false;
   const isDescriptionValid = description.value
     ? description.value.trim() !== ""
     : false;
@@ -140,7 +191,8 @@ function validateQuestion(question, index) {
     hasCorrectOption &&
     areOptionsValid &&
     isDescriptionValid &&
-    isTitleValid
+    isTitleValid &&
+    isdateValid
   );
 }
 
@@ -179,6 +231,7 @@ async function saveAll() {
         timer: q.timer,
         options: q.options.filter((opt) => opt?.option?.trim() !== ""),
       })),
+      start_time: startDate.value,
       userId: user.value.id,
       classId: classId,
       is_enables: false,
@@ -260,6 +313,37 @@ function removeQuestion(index) {
           :error-messages="descriptionError ? 'Description is required' : ''"
           required
         />
+        <v-menu
+          v-model="startDateMenu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template #activator="{ props }">
+            <v-text-field
+              v-model="startDateDisplay"
+              label="Quiz Start Time"
+              readonly
+              v-bind="props"
+              outlined
+              required
+            />
+          </template>
+          <v-card>
+            <v-date-picker v-model="startDateObj" :min="minDate" scrollable />
+            <v-time-picker
+              v-model="startTime"
+              format="24hr"
+              :allowed-hours="allowedHours"
+              :allowed-minutes="allowedMinutes"
+            />
+            <v-card-actions>
+              <v-spacer />
+              <v-btn text @click="startDateMenu = false">OK</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
         <div v-for="(question, index) in questions" :key="index" class="mb-6">
           <v-card-title class="d-flex justify-space-between align-center">
             Question {{ index + 1 }}

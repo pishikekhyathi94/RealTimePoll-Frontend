@@ -13,7 +13,10 @@ const tab = ref(1);
 const user = ref(null);
 const classesData = ref([]);
 const selectedUser = ref(null);
+const isEditClassDialogOpen = ref(false);
 const isDeleteDialogOpen = ref(false);
+const isDeleteClassDialogOpen = ref(false);
+const selectedClass = ref({});
 const usersData = ref([]);
 const snackbar = ref({
   value: false,
@@ -97,7 +100,7 @@ async function fetchUsers() {
   try {
     const response = await UserServices.getUsers().then((res) => {
       if (res.status === 200) {
-    usersData.value = response.data.map((user) => ({
+    usersData.value = res.data.map((user) => ({
       title: `${user.firstName} ${user.lastName}`,
       ...user,
     }));
@@ -135,15 +138,75 @@ function deleteUser(userId) {
     });
 }
 
+async function updateClass(classValues) {
+  const payload = {
+    name: classValues.name,
+  };
+  await ClassServices.updateClass(selectedClass.value.id, payload)
+    .then(async (response) => {
+      if (response?.status === 200) {
+        await fetchClasses();
+        isEditClassDialogOpen.value = false;
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = `${response?.data?.name} updated successfully!`;
+      }
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text =
+        error?.response?.data?.message ||
+        "An error occurred while updating the class.";
+    });
+}
+
 function cancelDelete() {
   selectedUser.value = null;
+  selectedClass.value = null;
   isDeleteDialogOpen.value = false;
+  isDeleteClassDialogOpen.value=false;
 }
 
 function openAddDialog() {
   newClass.value.name = "";
   showAddClassDialog.value = true;
 }
+
+function openEditClassModal(cls) {
+  selectedClass.value = { ...cls };
+  isEditClassDialogOpen.value = true;
+}
+
+function openDeleteClassDialog(cls){
+   selectedClass.value = cls;
+  isDeleteClassDialogOpen.value = true;
+}
+
+async function deleteClass(classId) {
+  try {
+    await ClassServices.deleteClass(classId).then(async (response) => {
+      if (response?.status === 200) {
+        isDeleteDialogOpen.value = false;
+        await fetchClasses();
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = "Class deleted successfully.";
+      } else {
+        snackbar.value.value = true;
+        snackbar.value.color = "error";
+        snackbar.value.text = "Failed to delete class.";
+      }
+    });
+  } catch (error) {
+    snackbar.value.value = true;
+    snackbar.value.color = "error";
+    snackbar.value.text =
+      error?.response?.data?.message ||
+      "An error occurred while deleting the class.";
+  }
+}
+
 </script>
 
 <style>
@@ -246,6 +309,24 @@ function openAddDialog() {
                         cls?.name
                       }}</v-card-title>
                     </v-card-item>
+                    <v-card-actions v-if="tab === 1 || tab === 2">
+                      <v-col cols="6" class="pa-0">
+                        <v-btn
+                          color="primary"
+                          icon="mdi-pencil-box-outline"
+                          size="large"
+                          @click="openEditClassModal(cls)"
+                        ></v-btn>
+                      </v-col>
+                      <v-col cols="6" class="d-flex pa-0 justify-end">
+                        <v-btn
+                          color="primary"
+                          icon="mdi-delete"
+                          @click="openDeleteClassDialog(cls)"
+                          size="large"
+                        ></v-btn>
+                      </v-col>
+                    </v-card-actions>
                   </v-card>
                 </div>
               </v-col>
@@ -256,6 +337,18 @@ function openAddDialog() {
     </v-col>
   </v-row>
   <AddClassDialog v-model="showAddClassDialog" @submit="createClass" />
+  <AddClassDialog
+    v-model="isEditClassDialogOpen"
+    :selectedClass="selectedClass"
+    :isEdit="true"
+    @submit="updateClass"
+  />
+  <DeleteConfirmationDialog
+    v-model="isDeleteClassDialogOpen"
+    message="Are you sure you want to delete this class?"
+    @confirm="deleteClass(selectedClass.id)"
+    @cancel="cancelDelete"
+  />
   <DeleteConfirmationDialog
     v-model="isDeleteDialogOpen"
     message="Are you sure you want to delete this user?"

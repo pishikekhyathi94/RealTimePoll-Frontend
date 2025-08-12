@@ -2,7 +2,7 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import { io } from "socket.io-client";
 
 export function usePoll() {
-    const socket = io("http://localhost:3200", {
+    const socket = io("http://localhost:8080", {
         transports: ["websocket", "polling"],
         autoConnect: true
     });

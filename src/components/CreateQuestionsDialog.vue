@@ -177,7 +177,7 @@ async function saveAll() {
       questions: questions.value.map((q) => ({
         question: q.question,
         timer: q.timer,
-        options: q.options.filter((opt) => opt.option.trim() !== ""),
+        options: q.options.filter((opt) => opt?.option?.trim() !== ""),
       })),
       userId: user.value.id,
       classId: classId,
@@ -336,14 +336,13 @@ function removeQuestion(index) {
             </v-list-item>
           </v-list>
           <v-row>
-            {{ console.log("optionErrorsList::", optionErrorsList, questions, questions?.options) }}
             <v-btn
               small
               color="primary"
               variant="text"
               class="mt-2"
               @click="
-               questions[index].options.push({
+                questions[index].options.push({
                   option: '',
                   is_correct: false,
                 })

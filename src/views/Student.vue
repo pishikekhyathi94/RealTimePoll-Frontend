@@ -174,20 +174,6 @@ function classDetails(cls) {
                         cls?.name
                       }}</v-card-title>
                     </v-card-item>
-                    <v-card-actions>
-                      <v-col cols="12" class="d-flex pa-0 justify-center">
-                        <v-btn
-                          class="my-2"
-                          prepend-icon="mdi-check"
-                          color="primary"
-                          v-if="cls?.isRegistered"
-                          variant="flat"
-                          disabled="true"
-                        >
-                          Registered
-                        </v-btn>
-                      </v-col>
-                    </v-card-actions>
                   </v-card>
                 </div>
               </v-col>
@@ -237,16 +223,6 @@ function classDetails(cls) {
                           variant="flat"
                         >
                           Register Class
-                        </v-btn>
-                        <v-btn
-                          class="my-2"
-                          prepend-icon="mdi-check"
-                          color="primary"
-                          v-if="cls?.isRegistered"
-                          variant="flat"
-                          disabled="true"
-                        >
-                          Registered
                         </v-btn>
                       </v-col>
                     </v-card-actions>

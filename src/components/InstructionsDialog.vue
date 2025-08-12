@@ -1,6 +1,10 @@
 <script setup>
 defineProps(["modelValue"]);
 const emit =  defineEmits(["start"]);
+
+function close() {
+  emit("update:modelValue", false);
+}
 </script>
 
 <template>
@@ -25,6 +29,7 @@ const emit =  defineEmits(["start"]);
       </v-card-text>
       <v-card-actions>
         <v-spacer />
+        <v-btn color="primary" @click="close">close</v-btn>
         <v-btn color="primary" @click="$emit('start')">Take Quiz</v-btn>
       </v-card-actions>
     </v-card>

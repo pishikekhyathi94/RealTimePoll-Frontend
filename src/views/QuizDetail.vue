@@ -212,7 +212,7 @@ async function deleteQuestion(questionId) {
       </div>
       <v-btn
         color="primary"
-        v-if="!userRole === 'student'"
+        v-if="!(userRole === 'student')"
         @click="openAddQuestionDialog = true"
         >Add Question</v-btn
       >
@@ -272,7 +272,7 @@ async function deleteQuestion(questionId) {
           variant="text"
           append-icon="mdi-pencil-box-outline"
           size="medium"
-          v-if="!userRole === 'student'"
+          v-if="!(userRole === 'student')"
           @click="openEditDialog(question)"
         >
           <span class="mr-2">Update Question </span></v-btn
@@ -283,7 +283,7 @@ async function deleteQuestion(questionId) {
           append-icon="mdi-delete"
           variant="text"
           @click="openDeleteDialog(question)"
-          v-if="!userRole === 'student'"
+          v-if="!(userRole === 'student')"
         >
           Delete Question</v-btn
         >

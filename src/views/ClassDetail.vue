@@ -8,6 +8,7 @@ import InstructionsDialog from "../components/InstructionsDialog.vue";
 import CreateQuestionsDialog from "../components/CreateQuestionsDialog.vue";
 import { downloadExcel } from "../reports/QuizReportDownloadStudent";
 import { format, parseISO } from "date-fns";
+import { usePoll } from "../reports/usePoll";
 
 const route = useRoute();
 const router = useRouter();
@@ -27,6 +28,7 @@ const showQuizInstructions = ref(false);
 const showCreateQuiz = ref(false);
 const manualEditQuiz = ref(null);
 const loading = ref(false);
+const { participateQuiz } = usePoll();
 
 onMounted(async () => {
   user.value = JSON.parse(localStorage.getItem("user"));
@@ -88,7 +90,7 @@ function goBack() {
     router.push({ name: "student", query: { tab: 2 } });
   } else if (userRole.value === "professor") {
     router.push({ name: "professor" });
-  }else if(userRole.value === "admin"){
+  } else if (userRole.value === "admin") {
     router.push({ name: "admin" });
   }
 }
@@ -163,7 +165,19 @@ async function beginQuiz() {
     .then(async (res) => {
       if (res?.status === 200) {
         showQuizInstructions.value = false;
-      startQuiz.value = true;
+        window.localStorage.setItem(
+          "quizStart",
+          JSON.stringify(selectedQuiz.value)
+        );
+        window.localStorage.setItem(
+          "quizStartQuestion",
+          JSON.stringify(res.data)
+        );
+        participateQuiz(selectedQuiz.value.id);
+        router.push({
+          name: "startQuiz",
+          params: { quizId: selectedQuiz.value.id },
+        });
       }
     })
     .catch((error) => {
@@ -221,7 +235,7 @@ function getDateFormat(date) {
       </v-btn>
       <v-btn
         color="primary"
-        v-if="userRole === 'professor'"
+        v-if="userRole === 'professor' || userRole === 'admin'"
         @click="openAddQuizDialog"
         >Add Quiz</v-btn
       >
@@ -333,11 +347,6 @@ function getDateFormat(date) {
       @cancel="cancelDelete"
     />
     <InstructionsDialog v-model="showQuizInstructions" @start="beginQuiz" />
-    <StartQuizDialog
-      v-if="startQuiz"
-      :quiz="selectedQuiz"
-      @finished="handleFinish"
-    />
   </v-container>
   <v-row justify="center" align="center" class="h-100" v-if="loading">
     <v-col cols="12" class="text-center py-10">

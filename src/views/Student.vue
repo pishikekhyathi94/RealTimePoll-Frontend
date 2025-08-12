@@ -9,12 +9,27 @@ const route = useRoute();
 const tab = ref(1);
 const loading = ref(false);
 const user = ref(null);
+const OriginalClassesData = ref([]);
 const classesData = ref([]);
 const myClassesData = ref([]);
+const search = ref("");
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
+});
+
+watch(search, async (val) => {
+  if (val && val?.length >= 3) {
+    if (tab.value === 1 || tab.value === 2) {
+      searchClasses(val);
+    }
+  } else {
+    if (tab.value === 1 || tab.value === 2) {
+      classesData.value = [];
+      await fetchClasses();
+    }
+  }
 });
 
 onMounted(async () => {
@@ -29,6 +44,21 @@ watch(tab, async (newTab) => {
   }
 });
 
+async function searchClasses(className) {
+  loading.value = true;
+  try {
+    const res = OriginalClassesData?.value?.filter((cls) =>
+      cls?.name?.toLowerCase().includes(className?.toLowerCase())
+    );
+    classesData.value = res;
+    myClassesData.value = res;
+  } catch (e) {
+    classesData.value = [];
+  } finally {
+    loading.value = false;
+  }
+}
+
 function closeSnackBar() {
   snackbar.value.value = false;
 }
@@ -37,6 +67,7 @@ async function fetchClasses() {
   loading.value = true;
   try {
     const response = await ClassServices.getClassesForUser(user.value.id);
+    OriginalClassesData.value = response.data;
     classesData.value = response.data;
     myClassesData.value = response.data.filter((cls) => cls?.isRegistered);
   } catch (error) {
@@ -77,6 +108,9 @@ function classDetails(cls) {
 .header-btn .v-btn__content {
   font-weight: 600;
 }
+.primary-text {
+  color: #990011;
+}
 </style>
 
 <template>
@@ -87,6 +121,18 @@ function classDetails(cls) {
         <v-tab :value="2">Classes</v-tab>
         <v-tab :value="1">My Classes</v-tab>
       </v-tabs>
+    </v-col>
+  </v-row>
+  <v-row class="px-6 mr-6" justify="end" v-if="tab === 2 || tab === 1">
+    <v-col cols="12">
+      <v-text-field
+        v-model="search"
+        label="Search classes"
+        prepend-inner-icon="mdi-magnify"
+        variant="outlined"
+        hide-details
+        single-line
+      ></v-text-field>
     </v-col>
   </v-row>
   <v-row>

@@ -1,7 +1,6 @@
 import * as XLSX from 'xlsx';
 
 export function downloadExcel(quizData, fileName) {
-    console.log("4::", quizData);
     const rows = [];
     quizData.forEach(q => {
         let row = {

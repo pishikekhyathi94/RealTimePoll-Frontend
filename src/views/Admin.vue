@@ -4,18 +4,24 @@ import { useRoute, useRouter } from "vue-router";
 import ClassServices from "../services/ClassServices.js";
 import UserServices from "../services/UserServices.js";
 import classImage from "../images/class.jpg";
+import DeleteConfirmationDialog from "../components/DeleteConfirmationDialog.vue";
+import AddClassDialog from "../components/AddClassDialog.vue";
 
 const router = useRouter();
 const route = useRoute();
 const tab = ref(1);
 const user = ref(null);
 const classesData = ref([]);
+const selectedUser = ref(null);
+const isDeleteDialogOpen = ref(false);
 const usersData = ref([]);
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
 });
+const newClass = ref({ name: "" });
+const showAddClassDialog = ref(false);
 const headers = [
   {
     align: "start",
@@ -43,6 +49,37 @@ watch(tab, async (newTab) => {
   }
 });
 
+async function createClass(classValues) {
+  const payload = {
+    name: classValues.name,
+    description: classValues.noOfStudents,
+    userId: user.value.id,
+  };
+  await ClassServices.addClass(payload)
+    .then(async (response) => {
+      if (response?.status === 200) {
+        await fetchClasses();
+        showAddClassDialog.value = false;
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = `${response?.data?.name} added successfully!`;
+      }
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text =
+        error?.response?.data?.message ||
+        "An error occurred while adding the book.";
+    });
+  showAddClassDialog.value = false;
+}
+
+function openDeleteDialog(user) {
+  selectedUser.value = user;
+  isDeleteDialogOpen.value = true;
+}
+
 function closeSnackBar() {
   snackbar.value.value = false;
 }
@@ -53,7 +90,6 @@ async function fetchClasses() {
     classesData.value = response.data;
   } catch (error) {
     console.error("Error fetching classes:", error);
-  } finally {
   }
 }
 
@@ -61,10 +97,10 @@ async function fetchUsers() {
   try {
     const response = await UserServices.getUsers().then((res) => {
       if (res.status === 200) {
-      usersData.value = response.data.map((user) => ({
-        title: `${user.firstName} ${user.lastName}`,
-        ...user,
-      }));
+    usersData.value = response.data.map((user) => ({
+      title: `${user.firstName} ${user.lastName}`,
+      ...user,
+    }));
       }
     });
   } catch (error) {
@@ -78,8 +114,43 @@ function classDetails(cls) {
     params: { classId: cls?.id, className: cls?.name },
   });
 }
+
+function deleteUser(userId) {
+  UserServices.deleteUser(userId)
+    .then(async (response) => {
+      if (response?.status === 200) {
+        await fetchUsers();
+        isDeleteDialogOpen.value = false;
+        snackbar.value.value = true;
+        snackbar.value.color = "green";
+        snackbar.value.text = `user deleted successfully!`;
+      }
+    })
+    .catch((error) => {
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text =
+        error?.response?.data?.message ||
+        "An error occurred while updating the class.";
+    });
+}
+
+function cancelDelete() {
+  selectedUser.value = null;
+  isDeleteDialogOpen.value = false;
+}
+
+function openAddDialog() {
+  newClass.value.name = "";
+  showAddClassDialog.value = true;
+}
 </script>
 
+<style>
+.primary-text {
+  color: #990011;
+}
+</style>
 <template>
   <router-view />
   <v-row class="px-3 pt-4" align="center">
@@ -119,6 +190,13 @@ function classDetails(cls) {
                             : JSON.parse(item.roles).join(", ")
                         }}
                       </template>
+                      <template #item.actions="{ item }">
+                        <span
+                          @click="openDeleteDialog(item)"
+                          class="primary-text font-weight-medium cursor-pointer"
+                          >Delete User</span
+                        >
+                      </template>
                     </v-data-table>
                   </v-card>
                 </v-sheet>
@@ -131,6 +209,18 @@ function classDetails(cls) {
             No classes.
           </div>
           <v-container v-else>
+            <v-row justify="end">
+              <v-col cols="2">
+                <v-btn
+                  @click="openAddDialog"
+                  v-if="tab === 2"
+                  class="my-2"
+                  color="primary"
+                >
+                  Add Class
+                </v-btn>
+              </v-col>
+            </v-row>
             <v-row>
               <v-col cols="12" class="d-flex flex-wrap gap-4">
                 <div
@@ -165,6 +255,13 @@ function classDetails(cls) {
       </v-tabs-window>
     </v-col>
   </v-row>
+  <AddClassDialog v-model="showAddClassDialog" @submit="createClass" />
+  <DeleteConfirmationDialog
+    v-model="isDeleteDialogOpen"
+    message="Are you sure you want to delete this user?"
+    @confirm="deleteUser(selectedUser.id)"
+    @cancel="cancelDelete"
+  />
   <v-snackbar v-model="snackbar.value" rounded="pill">
     {{ snackbar.text }}
     <template v-slot:actions>
